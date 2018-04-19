@@ -4,22 +4,24 @@
 
 int main(int argc, char *argv[])
 {	
-	char *input, *output;
-	size_t member_size;
-	Buffer *B;
-
 	//nome do arquivo de entrada
-	input = argv[1];
+	FILE *in = fopen(argv[1], "r");
 
 	//nome do arquivo de saida
-	output = argv[2];
+	FILE *out = fopen(argv[2], "w");
 
 	//numero de colunas c
-	member_size = atoi(argv[3]);
+	size_t member_size = atoi(argv[3]);
 
-	printf("%s\n", input);
-	printf("%s\n", output);
-	printf("%ld\n", member_size);
+	char buffer[1000];
+
+	while(fgets(buffer, 999, in) != NULL) 
+    {
+        fprintf (out, "%s\n", buffer);
+    }
+
+    fclose(in);
+    fclose(out);
 
 	return 0;
 }
