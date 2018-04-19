@@ -23,5 +23,4 @@ void buffer_destroy(Buffer *B){
   Reset buffer, eliminating contents.
 */
 void buffer_reset(Buffer *B){
-	*B = *buffer_create(B->member_size);
 }
