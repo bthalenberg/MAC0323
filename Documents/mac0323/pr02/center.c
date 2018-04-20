@@ -5,10 +5,10 @@
 int main(int argc, char *argv[])
 {	
 	//nome do arquivo de entrada
-	FILE *in = fopen(argv[1], "r");
+	FILE *input = fopen(argv[1], "r");
 
 	//nome do arquivo de saida
-	FILE *out = fopen(argv[2], "w");
+	FILE *output = fopen(argv[2], "w");
 
 	//numero de colunas c
 	size_t member_size = atoi(argv[3]);
@@ -19,13 +19,13 @@ int main(int argc, char *argv[])
 
 	printf("%ld\n", B->member_size);
 
-	while(fgets(buffer, 999, in) != NULL) 
+	while(fgets(buffer, 999, input) != NULL) 
     {
-        fprintf (out, "%s\n", buffer);
+        fprintf (output, "%s\n", buffer);
     }
 
-    fclose(in);
-    fclose(out);
+    fclose(input);
+    fclose(output);
 
 	return 0;
 }
