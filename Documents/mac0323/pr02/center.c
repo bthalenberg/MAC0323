@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     //    fprintf (output, "%s\n", buffer);
     //}
 
-
+	buffer_destroy(B);
 
     fclose(input);
     fclose(output);

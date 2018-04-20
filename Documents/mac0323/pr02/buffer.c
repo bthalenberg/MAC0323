@@ -19,7 +19,10 @@ Buffer *buffer_create(size_t member_size){
   Destroy a buffer.
 */
 void buffer_destroy(Buffer *B){
-
+	free (B->data);
+	B->data = NULL;
+	free (B);
+	B = NULL;
 }
 
 /*
@@ -52,7 +55,7 @@ int read_line(FILE *input, Buffer *B){
 		B->data[B->p] = (char)fgetc(input);
 		B->buffer_size++;
 		B->p++;
-	}while(B->data[B->p-1] != '\n' && B->data[B->p-1] != EOF);	
+	}while(B->data[B->p-1] != '\n' && B->data[B->p-1] != EOF);
 
 	if(B->data[B->p-1] == EOF) return 0;
 	return 1;
