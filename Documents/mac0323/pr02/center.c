@@ -13,16 +13,21 @@ int main(int argc, char *argv[])
 	//numero de colunas c
 	size_t member_size = atoi(argv[3]);
 
-	char buffer[1000];
+	//char buffer[1000];
 
 	Buffer *B = buffer_create(member_size);
 
 	int i = 1;
 	do{
 		i = read_line(input, B);
-		for(int j = 0; j < B->buffer_size+1; j++){
+		int dif = B->member_size - B->buffer_size;
+		for(int j = 1; j <= dif/2; j++) printf("_");
+		for(int j = 0; j < B->buffer_size-1; j++){
 			if(B->data[j] != EOF) printf("%c", B->data[j]);
 		}	
+		for(int j = 1; j <= dif/2; j++) printf("_");
+		printf("\n");
+
 	}while(i != 0);
 	
 	printf("\n\n");
