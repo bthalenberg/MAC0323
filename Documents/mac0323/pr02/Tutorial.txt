@@ -1,0 +1,2 @@
+1. Make
+2. ./center input.txt output.txt numero_de_colunas
