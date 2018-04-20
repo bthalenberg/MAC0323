@@ -10,7 +10,7 @@ Buffer *buffer_create(size_t member_size){
 	Buffer *B = malloc(sizeof(Buffer));
 	B->data = malloc(B->member_size * sizeof(char));
 	B->member_size = member_size;
-	B->buffer_size = 1;
+	B->buffer_size = 0;
 	B->p = 0;
 	return B;
 }
@@ -30,7 +30,7 @@ void buffer_destroy(Buffer *B){
 */
 void buffer_reset(Buffer *B){
 	memset(B->data, 0, B->buffer_size);
-	B->buffer_size = 1;
+	B->buffer_size = 0;
 	B->p = 0;
 }
 
