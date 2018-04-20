@@ -11,5 +11,5 @@ center.o: center.c buffer.h
 	gcc -o center.o -c center.c 
 
 clean:
-	rm -rf *.o
+	rm -rf *.o center
 

@@ -13,7 +13,7 @@
 
 // Buffer struct.
 typedef struct buffer_s {
-  void *data;
+  char *data;
   size_t buffer_size;  // Number of members in data array.
   size_t member_size;  // Size of one member.
   size_t p;  // First free position in data.

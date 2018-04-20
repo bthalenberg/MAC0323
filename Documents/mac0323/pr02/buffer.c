@@ -7,6 +7,7 @@
 */
 Buffer *buffer_create(size_t member_size){
 	Buffer *B = malloc(sizeof(Buffer));
+	B->data = malloc(B->member_size * sizeof(char));
 	B->member_size = member_size;
 	B->buffer_size = 1;
 	B->p = 0;
@@ -45,5 +46,14 @@ void *buffer_push_back(Buffer *B);
   if end-of-file is reached before any characters are read.
 */
 int read_line(FILE *input, Buffer *B){
-	
+	int i = 0;
+	//while(B->data[B->p] != EOF || B->data[B->p] != '\n'){
+	for(i = 0; i < 17; i++){
+		B->data[B->p] = (char)fgetc(input);
+		B->buffer_size++;
+		B->p++;
+	}
+
+	if(B->data[B->p] == EOF) return 0;
+	return 1;
 }

@@ -19,10 +19,15 @@ int main(int argc, char *argv[])
 
 	printf("%ld\n", B->member_size);
 
-	while(fgets(buffer, 999, input) != NULL) 
-    {
-        fprintf (output, "%s\n", buffer);
-    }
+	int i = read_line(input, B);
+	printf("%s\n", B->data);
+
+	//while(fgets(buffer, 999, input) != NULL) 
+    //{
+    //    fprintf (output, "%s\n", buffer);
+    //}
+
+
 
     fclose(input);
     fclose(output);
