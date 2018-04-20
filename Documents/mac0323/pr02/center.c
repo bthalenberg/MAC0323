@@ -17,11 +17,15 @@ int main(int argc, char *argv[])
 
 	Buffer *B = buffer_create(member_size);
 
-	printf("%ld\n", B->member_size);
-
-	int i = read_line(input, B);
-	printf("%s\n", B->data);
-
+	int i = 1;
+	do{
+		i = read_line(input, B);
+		for(int j = 0; j < B->buffer_size+1; j++){
+			if(B->data[j] != EOF) printf("%c", B->data[j]);
+		}	
+	}while(i != 0);
+	
+	printf("\n\n");
 	//while(fgets(buffer, 999, input) != NULL) 
     //{
     //    fprintf (output, "%s\n", buffer);

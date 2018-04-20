@@ -1,5 +1,6 @@
 #include "buffer.h"
 #include <stdio.h>
+#include <string.h>
 
 /*
   Create and return a new buffer that holds member elements of size
@@ -25,6 +26,7 @@ void buffer_destroy(Buffer *B){
   Reset buffer, eliminating contents.
 */
 void buffer_reset(Buffer *B){
+	memset(B->data, 0, B->buffer_size);
 	B->buffer_size = 1;
 	B->p = 0;
 }
@@ -45,13 +47,13 @@ void *buffer_push_back(Buffer *B);
   if end-of-file is reached before any characters are read.
 */
 int read_line(FILE *input, Buffer *B){
-	
+	buffer_reset(B);
 	do{
 		B->data[B->p] = (char)fgetc(input);
 		B->buffer_size++;
 		B->p++;
-	}while(B->data[B->p-1] != '\n');	
+	}while(B->data[B->p-1] != '\n' && B->data[B->p-1] != EOF);	
 
-	if(B->data[B->p] == EOF) return 0;
+	if(B->data[B->p-1] == EOF) return 0;
 	return 1;
 }
