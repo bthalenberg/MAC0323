@@ -1,4 +1,5 @@
 #include "buffer.h"
+#include <stdio.h>
 
 /*
   Create and return a new buffer that holds member elements of size
@@ -24,3 +25,20 @@ void buffer_destroy(Buffer *B){
 */
 void buffer_reset(Buffer *B){
 }
+
+/*
+  Return a valid pointer to the first free position of the
+  buffer. This means that, if the space allocated is not enough, then
+  the buffer size is increased and the contents are copied.
+*/
+void *buffer_push_back(Buffer *B);
+
+/*
+  Read a line (i.e., reads up to a newline '\n' character or the
+  end-of-file) from the input file and places it into the given
+  buffer, including the newline character if it is present. The buffer
+  is resetted before the line is read.
+  Returns the number of characters read; in particular, returns ZERO
+  if end-of-file is reached before any characters are read.
+*/
+int read_line(FILE *input, Buffer *B);

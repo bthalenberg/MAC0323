@@ -8,6 +8,8 @@
 #define __BUFFER_H__
 
 #include <stdlib.h>
+#include <stdio.h>
+
 
 // Buffer struct.
 typedef struct buffer_s {

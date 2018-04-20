@@ -15,6 +15,10 @@ int main(int argc, char *argv[])
 
 	char buffer[1000];
 
+	Buffer *B = buffer_create(member_size);
+
+	printf("%ld\n", B->member_size);
+
 	while(fgets(buffer, 999, in) != NULL) 
     {
         fprintf (out, "%s\n", buffer);
