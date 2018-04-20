@@ -25,7 +25,6 @@ void buffer_destroy(Buffer *B){
   Reset buffer, eliminating contents.
 */
 void buffer_reset(Buffer *B){
-	
 	B->buffer_size = 1;
 	B->p = 0;
 }
@@ -46,13 +45,12 @@ void *buffer_push_back(Buffer *B);
   if end-of-file is reached before any characters are read.
 */
 int read_line(FILE *input, Buffer *B){
-	int i = 0;
-	//while(B->data[B->p] != EOF || B->data[B->p] != '\n'){
-	for(i = 0; i < 17; i++){
+	
+	do{
 		B->data[B->p] = (char)fgetc(input);
 		B->buffer_size++;
 		B->p++;
-	}
+	}while(B->data[B->p-1] != '\n');	
 
 	if(B->data[B->p] == EOF) return 0;
 	return 1;
