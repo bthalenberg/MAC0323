@@ -44,4 +44,6 @@ void *buffer_push_back(Buffer *B);
   Returns the number of characters read; in particular, returns ZERO
   if end-of-file is reached before any characters are read.
 */
-int read_line(FILE *input, Buffer *B);
+int read_line(FILE *input, Buffer *B){
+	
+}
