@@ -10,7 +10,7 @@ Buffer *buffer_create(size_t member_size){
 	Buffer *B = malloc(sizeof(Buffer));
 	B->data = malloc(B->member_size * sizeof(char));
 	B->member_size = member_size;
-	B->buffer_size = 0;
+	B->buffer_size = 1;
 	B->p = 0;
 	return B;
 }
@@ -29,8 +29,9 @@ void buffer_destroy(Buffer *B){
   Reset buffer, eliminating contents.
 */
 void buffer_reset(Buffer *B){
-	memset(B->data, 0, B->buffer_size);
-	B->buffer_size = 0;
+	free(B->data);
+	B->data = malloc(B->member_size * sizeof(char));
+	B->buffer_size = 1;
 	B->p = 0;
 }
 
@@ -39,7 +40,9 @@ void buffer_reset(Buffer *B){
   buffer. This means that, if the space allocated is not enough, then
   the buffer size is increased and the contents are copied.
 */
-void *buffer_push_back(Buffer *B);
+void *buffer_push_back(Buffer *B){
+
+}
 
 /*
   Read a line (i.e., reads up to a newline '\n' character or the
@@ -52,8 +55,7 @@ void *buffer_push_back(Buffer *B);
 int read_line(FILE *input, Buffer *B){
 	buffer_reset(B);
 	do{
-		B->data[B->p] = (char)fgetc(input);
-		B->buffer_size++;
+		buffer_push_char(B,(char)fgetc(input));
 		B->p++;
 	}while(B->data[B->p-1] != '\n' && B->data[B->p-1] != EOF);
 
