@@ -41,7 +41,16 @@ void buffer_reset(Buffer *B){
   the buffer size is increased and the contents are copied.
 */
 void *buffer_push_back(Buffer *B){
+	/*
 
+	if p < buffer_size return p
+
+	create new buffer
+	allocate double the memory (buffer_size)
+	copy the contents from b to it
+	make pointer that points to b point to it
+	return p
+	*/
 }
 
 /*
