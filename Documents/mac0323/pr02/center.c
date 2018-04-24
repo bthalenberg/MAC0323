@@ -28,26 +28,25 @@ int main(int argc, char *argv[])
 		if(dif < 0) {
 			errorLines[errors++] = line;
 		}
-		for(int j = 1; j <= dif/2; j++) printf("_");
+		for(int j = 1; j <= dif/2; j++) fprintf(output, "_");
 		for(int j = 0; j < B->buffer_size-1; j++){
-			if(B->data[j] != EOF) printf("%c", B->data[j]);
+			if(B->data[j] != EOF) fprintf(output, "%c", B->data[j]);
 		}	
-		for(int j = 1; j <= dif/2; j++) printf("_");
-		printf("\n");
+		for(int j = 1; j <= dif/2; j++) fprintf(output, "_");
+		fprintf(output, "\n");
 
 	}while(i != 0);
 	
 	for(i = 0; i < errors; i++) 
 		fprintf(stderr, "center: %s: line %d: line too long.\n", argv[1], errorLines[i]);
 
-	
-	printf("\n\n");
+	fprintf(output, "\n\n");
 	//while(fgets(buffer, 999, input) != NULL) 
     //{
-    //    fprintf (output, "%s\n", buffer);
+    //    fprintf output, (output, "%s\n", buffer);
     //}
 
-	buffer_destroy(B);
+	//buffer_destroy(B);
 
     fclose(input);
     fclose(output);
