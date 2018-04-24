@@ -13,8 +13,6 @@ int main(int argc, char *argv[])
 	//numero de colunas c
 	size_t member_size = atoi(argv[3]);
 
-	//char buffer[1000];
-
 	Buffer *B = buffer_create(member_size);
 
 	int i = 1;
@@ -40,13 +38,7 @@ int main(int argc, char *argv[])
 	for(i = 0; i < errors; i++) 
 		fprintf(stderr, "center: %s: line %d: line too long.\n", argv[1], errorLines[i]);
 
-	fprintf(output, "\n\n");
-	//while(fgets(buffer, 999, input) != NULL) 
-    //{
-    //    fprintf output, (output, "%s\n", buffer);
-    //}
-
-	//buffer_destroy(B);
+	buffer_destroy(B);
 
     fclose(input);
     fclose(output);
