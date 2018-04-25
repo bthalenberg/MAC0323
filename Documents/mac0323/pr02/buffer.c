@@ -60,18 +60,20 @@ void *buffer_push_back(Buffer *B){
 int read_line(FILE *input, Buffer *B){
 	buffer_reset(B);
     int whiteCount = 1;
+    char c;
 	do {
-        char c = (char) fgetc(input);
-        if (c == ' ' || c == '\t') {
-            whiteCount++;
-        }
+        c = (char) fgetc(input);
+        if (c == ' ' || c == '\t') whiteCount++;
         else whiteCount = 0;
-        if (whiteCount <= 1) {
-		buffer_push_char(B, c);
-		B->p++;
-        B->buffer_size++;
+        if (c == '\n' || c == EOF) {
+            if (B->p > 0 && B->data[B->p-1] == ' ') B->p--;
         }
-	} while (B->data[B->p-1] != '\n' && B->data[B->p-1] != EOF);
+        if (whiteCount <= 1) {
+    		buffer_push_char(B, c);
+    		B->p++;
+            B->buffer_size++;
+        }
+	} while (c != '\n' && c != EOF);
     if (B->data[0] == EOF) return 0;
 	return B->p;
 }
