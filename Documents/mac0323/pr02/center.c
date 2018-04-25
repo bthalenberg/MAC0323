@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
 		if (dif < 0) {
 			errorLines[errors++] = line;
 		}
-		for (int j = 1; j <= dif/2; j++) fprintf(output, "_");
+		for (int j = 0; j <= dif/2; j++) fprintf(output, "+");
 		for (unsigned j = 0; j < B->buffer_size-1; j++)
 			if(B->data[j] != EOF) fprintf(output, "%c", B->data[j]);
-		for (int j = 1; j <= dif/2; j++) fprintf(output, "_");
+		for (int j = 1; j <= dif/2; j++) fprintf(output, "+");
 		fprintf(output, "\n");
 
 	} while (i != 0);
