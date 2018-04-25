@@ -1,5 +1,5 @@
 ############################# Makefile ##########################
-CFLAGS = -Wall -pedantic -O2 -Wextra
+CFLAGS = -Wall -std=c99 -pedantic -O2 -Wextra
 
 all: center
 
