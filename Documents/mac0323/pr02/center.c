@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
 	do {
 		line++;
 		i = read_line(input, B);
+        if (i == 0) break;
 		int dif = atoi(argv[3]) - i;
 		if (dif < 0) {
 			errorLines[errors++] = line;
