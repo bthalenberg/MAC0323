@@ -59,10 +59,18 @@ void *buffer_push_back(Buffer *B){
 */
 int read_line(FILE *input, Buffer *B){
 	buffer_reset(B);
+    int whiteCount = 1;
 	do {
-		buffer_push_char(B, (char)fgetc(input));
+        char c = (char) fgetc(input);
+        if (c == ' ' || c == '\t') {
+            whiteCount++;
+        }
+        else whiteCount = 0;
+        if (whiteCount <= 1) {
+		buffer_push_char(B, c);
 		B->p++;
         B->buffer_size++;
+        }
 	} while (B->data[B->p-1] != '\n' && B->data[B->p-1] != EOF);
     if (B->data[0] == EOF) return 0;
 	return B->p;
