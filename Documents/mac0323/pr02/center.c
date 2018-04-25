@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     			errorLines[errors++] = line;
     		}
             if (dif % 2 != 0) dif++;
-    		for (int j = 0; j < dif/2; j++) fprintf(output, "+");
+    		for (int j = 0; j < dif/2 && i != 1; j++) fprintf(output, " ");
     		for (unsigned j = 0; j < B->buffer_size-1; j++)
     			if(B->data[j] != EOF) fprintf(output, "%c", B->data[j]);
         }
