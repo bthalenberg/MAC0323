@@ -8,7 +8,7 @@
 */
 Buffer *buffer_create(size_t member_size){
 	Buffer *B = malloc(sizeof(Buffer));
-	B->data = malloc(B->member_size * sizeof(char));
+	B->data = malloc(member_size * sizeof(char));
 	B->member_size = member_size;
 	B->buffer_size = 1;
 	B->p = 0;
@@ -41,16 +41,12 @@ void buffer_reset(Buffer *B){
   the buffer size is increased and the contents are copied.
 */
 void *buffer_push_back(Buffer *B){
-	/*
 
-	if p < buffer_size return p
+	if (B->p < B->buffer_size) return (B->data + B->p);
 
-	create new buffer
-	allocate double the memory (buffer_size)
-	copy the contents from b to it
-	make pointer that points to b point to it
-	return p
-	*/
+	B->data = realloc(B->data, 2 * B->member_size * sizeof(char));
+    B->member_size *= 2;
+	return (B->data + B->p);
 }
 
 /*
@@ -66,6 +62,7 @@ int read_line(FILE *input, Buffer *B){
 	do{
 		buffer_push_char(B,(char)fgetc(input));
 		B->p++;
+        B->buffer_size++;
 	}while(B->data[B->p-1] != '\n' && B->data[B->p-1] != EOF);
 
 	if(B->data[B->p-1] == EOF) return 0;
