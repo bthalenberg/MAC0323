@@ -59,12 +59,11 @@ void *buffer_push_back(Buffer *B){
 */
 int read_line(FILE *input, Buffer *B){
 	buffer_reset(B);
-	do{
-		buffer_push_char(B,(char)fgetc(input));
+	do {
+		buffer_push_char(B, (char)fgetc(input));
 		B->p++;
         B->buffer_size++;
-	}while(B->data[B->p-1] != '\n' && B->data[B->p-1] != EOF);
-
-	if(B->data[B->p-1] == EOF) return 0;
-	return 1;
+	} while (B->data[B->p-1] != '\n' && B->data[B->p-1] != EOF);
+    if (B->data[0] == EOF) return 0;
+	return B->p;
 }

@@ -3,7 +3,8 @@
 #include "buffer.h"
 
 int main(int argc, char *argv[])
-{	
+{
+    if (argc != 4) return 1;
 	//nome do arquivo de entrada
 	FILE *input = fopen(argv[1], "r");
 
@@ -19,23 +20,22 @@ int main(int argc, char *argv[])
 	int line = 0;
 	int errorLines[100];
 	int errors = 0;
-	do{
+	do {
 		line++;
 		i = read_line(input, B);
-		int dif = B->member_size - B->buffer_size;
-		if(dif < 0) {
+		int dif = atoi(argv[3]) - i;
+		if (dif < 0) {
 			errorLines[errors++] = line;
 		}
-		for(int j = 1; j <= dif/2; j++) fprintf(output, "_");
-		for(int j = 0; j < B->buffer_size-1; j++){
+		for (int j = 1; j <= dif/2; j++) fprintf(output, "_");
+		for (int j = 0; j < B->buffer_size-1; j++)
 			if(B->data[j] != EOF) fprintf(output, "%c", B->data[j]);
-		}	
-		for(int j = 1; j <= dif/2; j++) fprintf(output, "_");
+		for (int j = 1; j <= dif/2; j++) fprintf(output, "_");
 		fprintf(output, "\n");
 
-	}while(i != 0);
-	
-	for(i = 0; i < errors; i++) 
+	} while (i != 0);
+
+	for (i = 0; i < errors; i++)
 		fprintf(stderr, "center: %s: line %d: line too long.\n", argv[1], errorLines[i]);
 
 	buffer_destroy(B);
