@@ -2,18 +2,29 @@
 #include <stdio.h>
 #include <string.h>
 
+// depois a gente arruma pra fazer rehashing
+#define M 100
+
 /*
   Return a new symbol table.
 */
 SymbolTable stable_create() {
-
+    SymbolTable *ht = malloc(M * sizeof (EntryData));
+    for (int h = 0; h < M; h++)
+        ht[h] = NULL;
+    return ht;
 }
 
 /*
   Destroy a given symbol table.
 */
 void stable_destroy(SymbolTable table) {
-
+    for (int h = 0; h < M; h++) {
+        free(table[h]);
+        table[h] = NULL;
+    }
+    free(table);
+    table = NULL;
 }
 
 /*
@@ -28,7 +39,22 @@ void stable_destroy(SymbolTable table) {
   allocation error, then crashes with an error message.
 */
 InsertionResult stable_insert(SymbolTable table, const char *key) {
-
+    EntryData *dat = stable_find(table, key);
+    InsertionResult *res = malloc(sizeof(InsertionResult));
+    // se não está, insere
+    if (dat == NULL) {
+        res->new = 1;
+        // aqui vem o processo de inserção (precisa fazer direito)
+        int h = hash(key, M);
+        dat = malloc(sizeof(EntryData));
+        table[h] = dat;
+        res->data = dat;
+    }
+    else {
+        res->new = 0;
+        res->data = dat;
+    }
+    return res;
 }
 
 /*
@@ -53,5 +79,13 @@ EntryData *stable_find(SymbolTable table, const char *key) {
 */
 int stable_visit(SymbolTable table,
                  int (*visit)(const char *key, EntryData *data)) {
+
+}
+
+/*
+    Hashing modular function
+*/
+
+int hash(const char *key) {
 
 }
