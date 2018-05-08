@@ -3,7 +3,8 @@
 #include <string.h>
 
 // depois a gente arruma pra fazer rehashing
-#define M 100
+//Precisa ser algum primo dahora
+#define M 997
 
 /*
   Return a new symbol table.
@@ -64,7 +65,9 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
   NULL pointer if the key is not found.
 */
 EntryData *stable_find(SymbolTable table, const char *key) {
-
+    int h = hash(key, M);
+    if(table[h] == NULL) return NULL;
+    return table[h];
 }
 
 /*
@@ -79,6 +82,7 @@ EntryData *stable_find(SymbolTable table, const char *key) {
 */
 int stable_visit(SymbolTable table,
                  int (*visit)(const char *key, EntryData *data)) {
+  
 
 }
 
@@ -87,5 +91,9 @@ int stable_visit(SymbolTable table,
 */
 
 int hash(const char *key) {
-
+    int i;
+    unsigned int h = key[0];
+     for (i = 1; key[i] != '\0'; i++) 
+        h = (h * 251 + key[i]) % M;
+     return h;  
 }
