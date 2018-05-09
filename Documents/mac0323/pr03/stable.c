@@ -4,7 +4,7 @@
 
 // depois a gente arruma pra fazer rehashing
 //Precisa ser algum primo dahora
-#define M 997
+long M 97
 
 /*
   Return a new symbol table.
