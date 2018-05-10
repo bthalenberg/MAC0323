@@ -1,4 +1,5 @@
 #include "stable.h"
+#include "aux.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -10,9 +11,9 @@ long M 97
   Return a new symbol table.
 */
 SymbolTable stable_create() {
-    SymbolTable *ht = malloc(M * sizeof (EntryData));
+    SymbolTable *ht = malloc(M * sizeof (Node));
     for (int h = 0; h < M; h++)
-        ht[h] = NULL;
+        ht->data[h] = NULL;
     return ht;
 }
 
@@ -21,8 +22,8 @@ SymbolTable stable_create() {
 */
 void stable_destroy(SymbolTable table) {
     for (int h = 0; h < M; h++) {
-        free(table[h]);
-        table[h] = NULL;
+        free(table->data[h]);
+        table->data[h] = NULL;
     }
     free(table);
     table = NULL;
