@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// depois a gente arruma pra fazer rehashing
 //Precisa ser algum primo dahora
 static long M 97
 
@@ -13,6 +12,7 @@ SymbolTable stable_create() {
     SymbolTable *ht = malloc(M * sizeof (Node));
     for (int h = 0; h < M; h++)
         ht[h] = NULL;
+    ht->n = 0;
     return ht;
 }
 
@@ -42,6 +42,8 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
     InsertionResult *res = malloc(sizeof(InsertionResult));
     // if we did not find the key, we need to insert it
     if (dat == NULL) {
+        table->n++;
+        if (table->n/M > 10) rehash(table);
         res->new = 1;
         int h = hash(key, M);
         dat = malloc(sizeof(EntryData));
@@ -52,13 +54,13 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         n->str = key;
         n->nxt = NULL;
         // if list is empty, key is the new head
-        if (table[h] = NULL) table[h]-n;
+        if (table[h] = NULL) table[h] = n;
         // else we go to the end of the list to add the new data
         else {
-          Node *last = table[h];
-          while (last->nxt != NULL) last = last->nxt;
-          // add link to new node
-          last->nxt = n;
+            Node *last = table[h];
+            while (last->nxt != NULL) last = last->nxt;
+            // add link to new node
+            last->nxt = n;
         }
     }
     // if we found the key, we need to return it
@@ -81,10 +83,9 @@ EntryData *stable_find(SymbolTable table, const char *key) {
     if (table[h] == NULL) return NULL;
     // if list isn't empty, we traverse the list trying to find the key
     else {
-      Node *this = table[h];
-      while (this != NULL || strcmp(this->str, key) != 0) {
-        this = this->nxt;
-      }
+        Node *this = table[h];
+        while (this != NULL || strcmp(this->str, key) != 0)
+            this = this->nxt;
     }
     // if we got to the end of the list without finding it, the key isn't there
     if (this == NULL) return NULL;
@@ -113,7 +114,27 @@ int stable_visit(SymbolTable table,
 static int hash(const char *key) {
     int i;
     unsigned int h = key[0];
-     for (i = 1; key[i] != '\0'; i++) 
+    for (i = 1; key[i] != '\0'; i++) 
         h = (h * 251 + key[i]) % M;
-     return h;  
+    return h;  
+}
+
+/*
+    Rehashing to keep load factor under 10
+*/
+static void rehash(SymbolTable table {
+    // finds new prime and sets M to it (TO DO)
+    int newM = M;
+    // realloc
+    SymbolTable newTable = malloc(table, newM * sizeof(Node));
+    for (int i = 0; i < M; i++) {
+        while (table[h] != NULL) {
+            InsertionResult res = stable_insert(newTable, table[h]->str);
+            res->data = table[h]->data;
+            // precisa dar free em table[h]->data ou destroy já faz isso?
+            table[h] = table[h]->nxt;
+        }
+    }
+    stable_destroy(table);
+    table = newTable;
 }
