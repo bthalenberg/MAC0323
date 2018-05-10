@@ -48,10 +48,25 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         // aqui vem o processo de inserção (precisa fazer direito)
         int h = hash(key, M);
         dat = malloc(sizeof(EntryData));
-        table[h] = dat;
+        dat->i = 1;
+        dat->str = key;
+
+        res->new = 1;
         res->data = dat;
+
+        if(table[h] = NULL){
+          table[h] = dat;
+        }
+        else{
+          EntryData *last = table[h];
+          while(last->p != NULL){
+            last = last->p;
+          }
+          last->p = dat;          
+        }
     }
     else {
+        dat->i = (dat->i) + 1;
         res->new = 0;
         res->data = dat;
     }
