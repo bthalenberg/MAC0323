@@ -45,7 +45,6 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
     // se não está, insere
     if (dat == NULL) {
         res->new = 1;
-        // aqui vem o processo de inserção (precisa fazer direito)
         int h = hash(key, M);
         dat = malloc(sizeof(EntryData));
         dat->i = 1;
