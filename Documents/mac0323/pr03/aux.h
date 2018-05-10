@@ -1,8 +1,8 @@
 
 //auxiliar structure for the linked list
 typedef struct {
-  //occurences of the key
-  int num;
+  //value
+  EntryData *data;
   //key
   char *str;
   //pointer to next node in linked list
