@@ -133,7 +133,7 @@ static int hash(const char *key) {
 */
 static void rehash(SymbolTable table {
     // finds new prime and sets M to it (TO DO)
-    M = primes[++index];
+    newM = primes[++index];
     // realloc
     SymbolTable newTable = malloc(table, newM * sizeof(Node));
     for (int i = 0; i < M; i++) {
