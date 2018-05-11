@@ -4,7 +4,15 @@
 #include <string.h>
 
 //Precisa ser algum primo dahora
-static long M 97
+static int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
+    51437, 102877, 205759, 411527, 823117, 1646237, 3292489, 6584983,
+    13169977, 26339969, 52679969, 105359939, 210719881, 421439783,
+    842879579, 1685759167}
+
+static int index = 0;
+
+static int M = primes[index];
+
 
 /*
   Return a new symbol table.
@@ -125,7 +133,7 @@ static int hash(const char *key) {
 */
 static void rehash(SymbolTable table {
     // finds new prime and sets M to it (TO DO)
-    int newM = M;
+    M = primes[++index];
     // realloc
     SymbolTable newTable = malloc(table, newM * sizeof(Node));
     for (int i = 0; i < M; i++) {
