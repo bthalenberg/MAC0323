@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#define EXIT_SUCCESS 1
+#define EXIT_FAILURE 0
+
 //Precisa ser algum primo dahora
 static int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
     51437, 102877, 205759, 411527, 823117, 1646237, 3292489, 6584983,
@@ -102,6 +105,18 @@ EntryData *stable_find(SymbolTable table, const char *key) {
     else return this->data;
 }
 
+
+/*
+    Function that does something to each data point visited during
+    stable_visit
+*/
+
+static int visit(char *key, EntryData *data){
+    if(data == NULL) return EXIT_FAILURE;
+    printf("Chave: %s e Valor %d\n", key, data);
+    return EXIT_SUCCESS;
+}
+
 /*
   Visit each entry on the table.
   The visit function is called on each entry, with pointers to its key
@@ -112,8 +127,19 @@ EntryData *stable_find(SymbolTable table, const char *key) {
 */
 int stable_visit(SymbolTable table,
                  int (*visit)(const char *key, EntryData *data)) {
-  
+    for (int h = 0; h < M; h++){
+        if(table[h] != NULL){
+            Node *this = table[h];
+            visit(this[h]->str, this[h]->data);
+            this = this->nxt;
+            while (this != NULL){
+                visit(this[h]->str, this[h]->data);
+                this = this->nxt;
+            }
+        }
+    }
 
+    return EXIT_SUCCESS;
 }
 
 /*
