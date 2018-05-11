@@ -2,6 +2,7 @@
 #include "aux.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define EXIT_SUCCESS 1
 #define EXIT_FAILURE 0
@@ -10,11 +11,11 @@
 static int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
     51437, 102877, 205759, 411527, 823117, 1646237, 3292489, 6584983,
     13169977, 26339969, 52679969, 105359939, 210719881, 421439783,
-    842879579, 1685759167}
+    842879579, 1685759167};
 
-static int index = 0;
+int index = 0;
 
-static int M = primes[index];
+int M = primes[index];
 
 
 /*
@@ -66,7 +67,7 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         n->str = key;
         n->nxt = NULL;
         // if list is empty, key is the new head
-        if (table[h] = NULL) table[h] = n;
+        if (table[h] == NULL) table[h] = n;
         // else we go to the end of the list to add the new data
         else {
             Node *last = table[h];
@@ -130,10 +131,10 @@ int stable_visit(SymbolTable table,
     for (int h = 0; h < M; h++){
         if(table[h] != NULL){
             Node *this = table[h];
-            visit(this[h]->str, this[h]->data);
+            visit(this[h].str, this[h].data);
             this = this->nxt;
             while (this != NULL){
-                visit(this[h]->str, this[h]->data);
+                visit(this[h].str, this[h].data);
                 this = this->nxt;
             }
         }
@@ -157,7 +158,7 @@ static int hash(const char *key) {
 /*
     Rehashing to keep load factor under 10
 */
-static void rehash(SymbolTable table {
+static void rehash(SymbolTable table) {
     // finds new prime and sets M to it (TO DO)
     M = primes[++index];
     // realloc
