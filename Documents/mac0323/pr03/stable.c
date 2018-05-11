@@ -133,9 +133,9 @@ static int hash(const char *key) {
 */
 static void rehash(SymbolTable table {
     // finds new prime and sets M to it (TO DO)
-    newM = primes[++index];
+    M = primes[++index];
     // realloc
-    SymbolTable newTable = malloc(table, newM * sizeof(Node));
+    SymbolTable newTable = malloc(table, M * sizeof(Node));
     for (int i = 0; i < M; i++) {
         while (table[h] != NULL) {
             InsertionResult res = stable_insert(newTable, table[h]->str);
