@@ -4,18 +4,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define EXIT_SUCCESS 1
-#define EXIT_FAILURE 0
-
 //Precisa ser algum primo dahora
 static int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
     51437, 102877, 205759, 411527, 823117, 1646237, 3292489, 6584983,
     13169977, 26339969, 52679969, 105359939, 210719881, 421439783,
     842879579, 1685759167};
 
-int index = 0;
+static int index = 0;
 
-int M = primes[index];
+static int M = primes[0];
 
 
 /*
@@ -34,8 +31,8 @@ SymbolTable stable_create() {
 */
 void stable_destroy(SymbolTable table) {
     for (int h = 0; h < M; h++) {
-        free(table[h]);
-        table[h] = NULL;
+        free(table.data[h]);
+        table.data[h] = NULL;
     }
     free(table);
     table = NULL;
@@ -67,10 +64,10 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         n->str = key;
         n->nxt = NULL;
         // if list is empty, key is the new head
-        if (table[h] == NULL) table[h] = n;
+        if (table.data[h] == NULL) table.data[h] = n;
         // else we go to the end of the list to add the new data
         else {
-            Node *last = table[h];
+            Node *last = table.data[h];
             while (last->nxt != NULL) last = last->nxt;
             // add link to new node
             last->nxt = n;
@@ -93,10 +90,10 @@ EntryData *stable_find(SymbolTable table, const char *key) {
     // finds in which linked list the key is supposed to be
     int h = hash(key, M);
     // if list is empty, key isn't there
-    if (table[h] == NULL) return NULL;
+    if (table.data[h] == NULL) return NULL;
     // if list isn't empty, we traverse the list trying to find the key
     else {
-        Node *this = table[h];
+        Node *this = table.data[h];
         while (this != NULL || strcmp(this->str, key) != 0)
             this = this->nxt;
     }
@@ -114,7 +111,7 @@ EntryData *stable_find(SymbolTable table, const char *key) {
 
 static int visit(char *key, EntryData *data){
     if(data == NULL) return EXIT_FAILURE;
-    printf("Chave: %s e Valor %d\n", key, data);
+    printf("Chave: %s e Valor %d\n", key, data.data);
     return EXIT_SUCCESS;
 }
 
@@ -129,8 +126,8 @@ static int visit(char *key, EntryData *data){
 int stable_visit(SymbolTable table,
                  int (*visit)(const char *key, EntryData *data)) {
     for (int h = 0; h < M; h++){
-        if(table[h] != NULL){
-            Node *this = table[h];
+        if(table.data[h] != NULL){
+            Node *this = table.data[h];
             visit(this[h].str, this[h].data);
             this = this->nxt;
             while (this != NULL){
@@ -164,11 +161,11 @@ static void rehash(SymbolTable table) {
     // realloc
     SymbolTable newTable = malloc(table, M * sizeof(Node));
     for (int i = 0; i < M; i++) {
-        while (table[h] != NULL) {
-            InsertionResult res = stable_insert(newTable, table[h]->str);
-            res->data = table[h]->data;
-            // precisa dar free em table[h]->data ou destroy já faz isso?
-            table[h] = table[h]->nxt;
+        while (table.data[i] != NULL) {
+            InsertionResult res = stable_insert(newTable, table.data[i]->str);
+            res->data = table.data[i]->data;
+            // precisa dar free em table.data[h]->data ou destroy já faz isso?
+            table.data[i] = table.data[i]->nxt;
         }
     }
     stable_destroy(table);
