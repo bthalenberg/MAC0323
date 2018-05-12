@@ -20,8 +20,7 @@ static int M = primes[0];
 */
 SymbolTable stable_create() {
     SymbolTable *ht = malloc(M * sizeof (Node));
-    for (int h = 0; h < M; h++)
-        ht[h] = NULL;
+    for (int h = 0; h < M; h++) ht[h] = NULL;
     ht->n = 0;
     return ht;
 }
@@ -36,6 +35,38 @@ void stable_destroy(SymbolTable table) {
     }
     free(table);
     table = NULL;
+}
+
+/*
+    Hashing modular function
+*/
+
+static int hash(const char *key) {
+    int i;
+    unsigned int h = key[0];
+    for (i = 1; key[i] != '\0'; i++) 
+        h = (h * 251 + key[i]) % M;
+    return h;  
+}
+
+/*
+    Rehashing to keep load factor under 10
+*/
+static void rehash(SymbolTable table) {
+    // finds new prime and sets M to it (TO DO)
+    M = primes[++index];
+    // realloc
+    SymbolTable newTable = malloc(table, M * sizeof(Node));
+    for (int i = 0; i < M; i++) {
+        while (table.data[i] != NULL) {
+            InsertionResult res = stable_insert(newTable, table.data[i]->str);
+            res->data = table.data[i]->data;
+            // precisa dar free em table.data[h]->data ou destroy já faz isso?
+            table.data[i] = table.data[i]->nxt;
+        }
+    }
+    stable_destroy(table);
+    table = newTable;
 }
 
 /*
@@ -78,7 +109,7 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         res->new = 0;
         res->data = dat;
     }
-    return res;
+    return *res;
 }
 
 /*
@@ -88,12 +119,12 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
 */
 EntryData *stable_find(SymbolTable table, const char *key) {
     // finds in which linked list the key is supposed to be
-    int h = hash(key, M);
+    int h = hash(key);
+    Node *this = table.data[h];
     // if list is empty, key isn't there
-    if (table.data[h] == NULL) return NULL;
+    if (this == NULL) return NULL;
     // if list isn't empty, we traverse the list trying to find the key
     else {
-        Node *this = table.data[h];
         while (this != NULL || strcmp(this->str, key) != 0)
             this = this->nxt;
     }
@@ -111,7 +142,7 @@ EntryData *stable_find(SymbolTable table, const char *key) {
 
 static int visit(char *key, EntryData *data){
     if(data == NULL) return EXIT_FAILURE;
-    printf("Chave: %s e Valor %d\n", key, data.data);
+    printf("Chave: %s e Valor %d\n", key, data);
     return EXIT_SUCCESS;
 }
 
@@ -140,34 +171,3 @@ int stable_visit(SymbolTable table,
     return EXIT_SUCCESS;
 }
 
-/*
-    Hashing modular function
-*/
-
-static int hash(const char *key) {
-    int i;
-    unsigned int h = key[0];
-    for (i = 1; key[i] != '\0'; i++) 
-        h = (h * 251 + key[i]) % M;
-    return h;  
-}
-
-/*
-    Rehashing to keep load factor under 10
-*/
-static void rehash(SymbolTable table) {
-    // finds new prime and sets M to it (TO DO)
-    M = primes[++index];
-    // realloc
-    SymbolTable newTable = malloc(table, M * sizeof(Node));
-    for (int i = 0; i < M; i++) {
-        while (table.data[i] != NULL) {
-            InsertionResult res = stable_insert(newTable, table.data[i]->str);
-            res->data = table.data[i]->data;
-            // precisa dar free em table.data[h]->data ou destroy já faz isso?
-            table.data[i] = table.data[i]->nxt;
-        }
-    }
-    stable_destroy(table);
-    table = newTable;
-}
