@@ -1,37 +1,35 @@
-#include "stable.h"
+//#include "stable.h"
 #include "aux.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 //Precisa ser algum primo dahora
-static int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
+const int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
     51437, 102877, 205759, 411527, 823117, 1646237, 3292489, 6584983,
     13169977, 26339969, 52679969, 105359939, 210719881, 421439783,
     842879579, 1685759167};
-
-static int index = 0;
-
-static int M = primes[0];
-
 
 /*
   Return a new symbol table.
 */
 SymbolTable stable_create() {
-    SymbolTable *ht = malloc(M * sizeof (Node));
-    for (int h = 0; h < M; h++) ht[h] = NULL;
-    ht->n = 0;
-    return ht;
+    //ta dando merda na def de symboltable
+    SymbolTable *ht = malloc( sizeof (SymbolTable));
+    (*ht)->data = malloc( primes[0] * sizeof(Node));
+    for (int h = 0; h < primes[0]; h++) (*ht)->data[h] = NULL;
+    (*ht)->n = 0;
+    (*ht)->prIndex = 0;
+    return *ht;
 }
 
 /*
   Destroy a given symbol table.
 */
 void stable_destroy(SymbolTable table) {
-    for (int h = 0; h < M; h++) {
-        free(table.data[h]);
-        table.data[h] = NULL;
+    for (int h = 0; h < table -> M; h++) {
+        free(table->data[h]);
+        table->data[h] = NULL;
     }
     free(table);
     table = NULL;
@@ -41,11 +39,11 @@ void stable_destroy(SymbolTable table) {
     Hashing modular function
 */
 
-static int hash(const char *key) {
-    int i;
+static int hash(const char *key, int index) {
+    //regular rolling hash function
     unsigned int h = key[0];
-    for (i = 1; key[i] != '\0'; i++) 
-        h = (h * 251 + key[i]) % M;
+    for (int i = 1; key[i] != '\0'; i++) 
+        h = (h * 251 + key[i]) % primes[index];
     return h;  
 }
 
@@ -53,16 +51,18 @@ static int hash(const char *key) {
     Rehashing to keep load factor under 10
 */
 static void rehash(SymbolTable table) {
-    // finds new prime and sets M to it (TO DO)
-    M = primes[++index];
     // realloc
-    SymbolTable newTable = malloc(table, M * sizeof(Node));
-    for (int i = 0; i < M; i++) {
-        while (table.data[i] != NULL) {
-            InsertionResult res = stable_insert(newTable, table.data[i]->str);
-            res->data = table.data[i]->data;
-            // precisa dar free em table.data[h]->data ou destroy já faz isso?
-            table.data[i] = table.data[i]->nxt;
+    //isso da merda tb depois da redefinicao
+    SymbolTable newTable = malloc((primes[table->prIndex]+1) * sizeof(Node));
+    newTable->n = table->n;
+    newTable->prIndex = table->prIndex+1;
+    for (int i = 0; i < table->prIndex ; i++) {
+        while (table->data[i] != NULL) {
+            //mudei isso mas pode estar errado
+            //InsertionResult res = stable_insert(newTable, table->data[i]->str);
+            //res.data = table->data[i]->data;
+            stable_insert(newTable, table->data[i]->str);
+            table->data[i] = table->data[i]->nxt;
         }
     }
     stable_destroy(table);
@@ -84,9 +84,9 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
     // if we did not find the key, we need to insert it
     if (dat == NULL) {
         table->n++;
-        if (table->n/M > 10) rehash(table);
+        if (table->n/primes[table->prIndex] > 10) rehash(table);
         res->new = 1;
-        int h = hash(key, M);
+        int h = hash(key, primes[table->prIndex]);
         dat = malloc(sizeof(EntryData));
         res->data = dat;
         // create new node
@@ -95,10 +95,10 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         n->str = key;
         n->nxt = NULL;
         // if list is empty, key is the new head
-        if (table.data[h] == NULL) table.data[h] = n;
+        if (table->data[h] == NULL) table->data[h] = n;
         // else we go to the end of the list to add the new data
         else {
-            Node *last = table.data[h];
+            Node *last = table->data[h];
             while (last->nxt != NULL) last = last->nxt;
             // add link to new node
             last->nxt = n;
@@ -119,8 +119,8 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
 */
 EntryData *stable_find(SymbolTable table, const char *key) {
     // finds in which linked list the key is supposed to be
-    int h = hash(key);
-    Node *this = table.data[h];
+    int h = hash(key,table->prIndex);
+    Node *this = table->data[h];
     // if list is empty, key isn't there
     if (this == NULL) return NULL;
     // if list isn't empty, we traverse the list trying to find the key
@@ -140,9 +140,48 @@ EntryData *stable_find(SymbolTable table, const char *key) {
     stable_visit
 */
 
+//our answer structure
+answer final;
+
+//initializes the answer
+static void init(SymbolTable table){
+    //creating new answer
+    free(final);
+    final->dat=malloc(table->n);
+    final->keys=malloc(sizeof(int)*(table->n));
+    final->index=0;
+}
+
+//sorts the array and prints the result 
+static void final(SymbolTable table){
+    int num=table->n;
+    //bubble sorting the keys
+    for(int i=0;i<n;i++){
+        for(int j=0;j<n-1;j++){
+            if((final->keys[j])>(final->keys[j+1])){
+                //some swaps
+                int t1=final->keys[j];
+                final->keys[j]=final->keys[j+1];
+                final->keys[j+1]=t1;
+                *char t2=final->dat[j];
+                final->dat[j]=final->dat[j+1];
+                final->dat[j+1]=t2;
+            }
+        }
+    }
+    //print the answer
+    for(int i=0;i<n;i++){
+        printf("Chave: %s e Valor %d\n", table->keys[i], table->dat[i]);
+    }
+}
+
+//auxiliary function in stable_visit
 static int visit(char *key, EntryData *data){
     if(data == NULL) return EXIT_FAILURE;
-    printf("Chave: %s e Valor %d\n", key, data);
+    //if data is there, updates the answer array
+    final->dat[index]=data;
+    final->keys[index]=key;
+    index++;
     return EXIT_SUCCESS;
 }
 
@@ -156,9 +195,12 @@ static int visit(char *key, EntryData *data){
 */
 int stable_visit(SymbolTable table,
                  int (*visit)(const char *key, EntryData *data)) {
-    for (int h = 0; h < M; h++){
-        if(table.data[h] != NULL){
-            Node *this = table.data[h];
+    init(table);
+    //for each possible node
+    for (int h = 0; h < primes[table->prIndex]; h++){
+        //goes through the respective linked list
+        if(table->data[h] != NULL){
+            Node *this = table->data[h];
             visit(this[h].str, this[h].data);
             this = this->nxt;
             while (this != NULL){
@@ -167,6 +209,8 @@ int stable_visit(SymbolTable table,
             }
         }
     }
+
+    final(table);
 
     return EXIT_SUCCESS;
 }

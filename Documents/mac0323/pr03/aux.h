@@ -1,3 +1,4 @@
+#include "stable.h"
 //auxiliar structure for the linked list
 typedef struct {
     //value
@@ -14,4 +15,13 @@ typedef struct {
     Node **data;
     // number of keys in st
     int n;
-} SymbolTable;
+    //previous M
+    int prIndex;
+} stable_s;
+
+
+typedef struct {
+    char **dat;
+    int *keys;
+    int index;
+} answer;
