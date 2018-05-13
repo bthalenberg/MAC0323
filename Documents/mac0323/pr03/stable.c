@@ -104,7 +104,7 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         if (*table->n/primes[*table->prIndex] > 10) rehash(table);
         res->new = 1;
         int h = hash(key, *table->prIndex);
-        dat = malloc(sizeof(EntryData));
+        EntryData *dat = malloc(sizeof(EntryData));
         res->data = dat;
         // create new node
         Node *n = malloc(sizeof(Node));
