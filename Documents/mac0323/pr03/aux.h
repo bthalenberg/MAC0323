@@ -21,7 +21,9 @@ typedef struct {
 
 
 typedef struct {
-    char **dat;
-    int *keys;
+    char **str;
+    int *val;
     int index;
+    // length of longest key
+    int maxLen;
 } answer;

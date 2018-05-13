@@ -1,4 +1,3 @@
-//#include "stable.h"
 #include "aux.h"
 #include <stdio.h>
 #include <string.h>
@@ -15,8 +14,8 @@ const int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
 */
 SymbolTable stable_create() {
     //ta dando merda na def de symboltable
-    SymbolTable *ht = malloc( sizeof (SymbolTable));
-    (*ht)->data = malloc( primes[0] * sizeof(Node));
+    SymbolTable *ht = malloc(sizeof (SymbolTable));
+    (*ht)->data = malloc(primes[0] * sizeof(Node));
     for (int h = 0; h < primes[0]; h++) (*ht)->data[h] = NULL;
     (*ht)->n = 0;
     (*ht)->prIndex = 0;
@@ -42,9 +41,9 @@ void stable_destroy(SymbolTable table) {
 static int hash(const char *key, int index) {
     //regular rolling hash function
     unsigned int h = key[0];
-    for (int i = 1; key[i] != '\0'; i++) 
+    for (int i = 1; key[i] != '\0'; i++)
         h = (h * 251 + key[i]) % primes[index];
-    return h;  
+    return h;
 }
 
 /*
@@ -140,50 +139,6 @@ EntryData *stable_find(SymbolTable table, const char *key) {
     stable_visit
 */
 
-//our answer structure
-answer final;
-
-//initializes the answer
-static void init(SymbolTable table){
-    //creating new answer
-    free(final);
-    final->dat=malloc(table->n);
-    final->keys=malloc(sizeof(int)*(table->n));
-    final->index=0;
-}
-
-//sorts the array and prints the result 
-static void final(SymbolTable table){
-    int num=table->n;
-    //bubble sorting the keys
-    for(int i=0;i<n;i++){
-        for(int j=0;j<n-1;j++){
-            if((final->keys[j])>(final->keys[j+1])){
-                //some swaps
-                int t1=final->keys[j];
-                final->keys[j]=final->keys[j+1];
-                final->keys[j+1]=t1;
-                *char t2=final->dat[j];
-                final->dat[j]=final->dat[j+1];
-                final->dat[j+1]=t2;
-            }
-        }
-    }
-    //print the answer
-    for(int i=0;i<n;i++){
-        printf("Chave: %s e Valor %d\n", table->keys[i], table->dat[i]);
-    }
-}
-
-//auxiliary function in stable_visit
-static int visit(char *key, EntryData *data){
-    if(data == NULL) return EXIT_FAILURE;
-    //if data is there, updates the answer array
-    final->dat[index]=data;
-    final->keys[index]=key;
-    index++;
-    return EXIT_SUCCESS;
-}
 
 /*
   Visit each entry on the table.
@@ -195,23 +150,20 @@ static int visit(char *key, EntryData *data){
 */
 int stable_visit(SymbolTable table,
                  int (*visit)(const char *key, EntryData *data)) {
-    init(table);
     //for each possible node
     for (int h = 0; h < primes[table->prIndex]; h++){
         //goes through the respective linked list
         if(table->data[h] != NULL){
             Node *this = table->data[h];
-            visit(this[h].str, this[h].data);
+            visit(this[h]->str, this[h]->data);
             this = this->nxt;
             while (this != NULL){
-                visit(this[h].str, this[h].data);
+                visit(this[h]->str, this[h]->data);
                 this = this->nxt;
             }
         }
     }
 
     final(table);
-
-    return EXIT_SUCCESS;
+    return 1;
 }
-
