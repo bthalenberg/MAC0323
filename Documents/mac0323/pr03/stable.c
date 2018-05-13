@@ -35,7 +35,7 @@ SymbolTable stable_create() {
 */
 void stable_destroy(SymbolTable table) {
     // free em todos os nodes
-    for (int h = 0; h < primes[*table->prIndex]; h++) {
+    for (int h = 0; h < primes[table->prIndex]; h++) {
         Node *head = table->data[h];
         Node *t;
         while (head != NULL) {
@@ -69,10 +69,10 @@ static int hash(const char *key, int index) {
 static void rehash(SymbolTable table) {
     // realloc
 
-    SymbolTable newTable = malloc((primes[*table->prIndex] + 1) * sizeof(Node));
-    *newTable->n = *table->n;
-    *newTable->prIndex = *table->prIndex+1;
-    for (int i = 0; i < *table->prIndex ; i++) {
+    SymbolTable newTable = malloc((primes[table->prIndex] + 1) * sizeof(Node));
+    newTable->n = table->n;
+    newTable->prIndex = table->prIndex+1;
+    for (int i = 0; i < table->prIndex ; i++) {
         while (table->data[i] != NULL) {
             //mudei isso mas pode estar errado
             //InsertionResult res = stable_insert(newTable, table->data[i]->str);
@@ -101,9 +101,9 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
     // if we did not find the key, we need to insert it
     if (dat == NULL) {
         table->n++;
-        if (*table->n/primes[*table->prIndex] > 10) rehash(table);
+        if (table->n/primes[table->prIndex] > 10) rehash(table);
         res->new = 1;
-        int h = hash(key, *table->prIndex);
+        int h = hash(key, table->prIndex);
         EntryData *dat = malloc(sizeof(EntryData));
         res->data = dat;
         // create new node
@@ -136,7 +136,7 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
 */
 EntryData *stable_find(SymbolTable table, const char *key) {
     // finds in which linked list the key is supposed to be
-    int h = hash(key, *table->prIndex);
+    int h = hash(key, table->prIndex);
     Node *this = table->data[h];
 
     // if list is empty, key isn't there
@@ -165,7 +165,7 @@ int stable_visit(SymbolTable table,
                  int (*visit)(const char *key, EntryData *data)) {
     //for each possible node
     int r;
-    for (int h = 0; h < primes[*table->prIndex]; h++){
+    for (int h = 0; h < primes[table->prIndex]; h++){
         //goes through the respective linked list
         if(table->data[h] != NULL){
             Node *this = table->data[h];

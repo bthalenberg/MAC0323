@@ -39,7 +39,7 @@ int visit(const char *key, EntryData *data){
 
 //sorts the array and prints the result
 static void sortAndPrint(SymbolTable table){
-    int num = *table->n;
+    int num = table->n;
     int j, v;
     char *k;
     //insertion sort in the keys
