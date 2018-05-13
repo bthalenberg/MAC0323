@@ -10,8 +10,8 @@ answer *final;
 static void init(SymbolTable table){
     // creating new answer
     final = malloc(sizeof(answer));
-    final->val = malloc((table->n + 1 )* sizeof(int));
-    final->str = malloc((table->n + 1) * sizeof(100 * sizeof(char)));
+    final->val = malloc((long unsigned int)(table->n + 1 )* sizeof(int));
+    final->str = malloc((long unsigned int)(table->n + 1) * sizeof(100 * sizeof(char)));
     final->index = 0;
     final->maxLen = 0;
 }
@@ -30,7 +30,7 @@ int visit(const char *key, EntryData *data){
 
 //sorts the array and prints the result
 static void sortAndPrint(SymbolTable table){
-    int num = table->n;
+    int num = *table->n;
     int j, v;
     char *k;
     //insertion sort in the keys
@@ -59,6 +59,7 @@ static void sortAndPrint(SymbolTable table){
 }
 
 int main(int argc, char *argv[]) {
+
     if (argc != 2) return 1;
 
     // cria a hashtable
