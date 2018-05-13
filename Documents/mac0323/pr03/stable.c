@@ -14,7 +14,16 @@ const int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
 */
 SymbolTable stable_create() {
     SymbolTable ht = malloc(sizeof (SymbolTable));
-    ht->data = malloc(primes[0] * sizeof(Node));
+    // checks if malloc was successfull
+    if (ht == NULL) {
+        free (ht);
+        return NULL;
+    }
+    ht->data = malloc((primes[0] + 1) * sizeof(Node));
+    if (ht->data == NULL) {
+        free (ht->data);
+        return NULL;
+    }
     for (int h = 0; h < primes[0]; h++) ht->data[h] = NULL;
     ht->n = 0;
     ht->prIndex = 0;
@@ -51,8 +60,8 @@ static int hash(const char *key, int index) {
 */
 static void rehash(SymbolTable table) {
     // realloc
-    //isso da merda tb depois da redefinicao
-    SymbolTable newTable = malloc((primes[table->prIndex]+1) * sizeof(Node));
+
+    SymbolTable newTable = malloc((primes[table->prIndex] + 1) * sizeof(Node));
     newTable->n = table->n;
     newTable->prIndex = table->prIndex+1;
     for (int i = 0; i < table->prIndex ; i++) {
@@ -151,10 +160,10 @@ int stable_visit(SymbolTable table,
         //goes through the respective linked list
         if(table->data[h] != NULL){
             Node *this = table->data[h];
-            visit(this[h].str, this[h].data);
+            visit(this->str, this->data);
             this = this->nxt;
             while (this != NULL){
-                visit(this[h].str, this[h].data);
+                visit(this->str, this->data);
                 this = this->nxt;
             }
         }
