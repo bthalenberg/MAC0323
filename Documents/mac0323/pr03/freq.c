@@ -16,6 +16,15 @@ static void init(SymbolTable table){
     final->maxLen = 0;
 }
 
+static void destroyAnswer() {
+    free(final->val);
+    final->val = NULL;
+    free(final->str);
+    final->str = NULL;
+    free(final);
+    final = NULL;
+}
+
 // auxiliary function in stable_visit
 int visit(const char *key, EntryData *data){
     if(data == NULL) return 0;
@@ -51,11 +60,6 @@ static void sortAndPrint(SymbolTable table){
     for (int i = 0; i < num; i++){
         printf("%s:%.*d\n", final->str[i], final->maxLen, final->val[i]);
     }
-    free(final->val);
-    final->val = NULL;
-    free(final->str);
-    final->str = NULL;
-    free(final);
 }
 
 int main(int argc, char *argv[]) {
@@ -92,6 +96,7 @@ int main(int argc, char *argv[]) {
     if (res == 0) fprintf(stderr, "Erro ao percorrer as entradas!\n");
     // ordena e imprime as entradas
     else sortAndPrint(st);
+    destroyAnswer();
     stable_destroy(st);
     return 0;
 }

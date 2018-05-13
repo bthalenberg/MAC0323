@@ -34,9 +34,17 @@ SymbolTable stable_create() {
   Destroy a given symbol table.
 */
 void stable_destroy(SymbolTable table) {
+    // free em todos os nodes
     for (int h = 0; h < primes[table->prIndex]; h++) {
-        free(table->data[h]);
-        table->data[h] = NULL;
+        Node *head = table->data[h];
+        Node *t;
+        while (head != NULL) {
+            // free em todos os entrydata
+            t = head;
+            head = head->nxt;
+            free(t->data);
+            t->data = NULL;
+        }
     }
     free(table);
     table = NULL;
