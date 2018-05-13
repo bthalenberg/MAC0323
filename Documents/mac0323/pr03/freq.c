@@ -12,7 +12,8 @@ static void init(SymbolTable table){
     final = malloc(sizeof(answer));
     final->val = malloc((table->n + 1 )* sizeof(int));
     final->str = malloc((table->n + 1) * sizeof(100 * sizeof(char)));
-    final->index=0;
+    final->index = 0;
+    final->maxLen = 0;
 }
 
 // auxiliary function in stable_visit
