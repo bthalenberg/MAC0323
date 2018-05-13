@@ -32,7 +32,7 @@ static void sortAndPrint(SymbolTable table){
     int num = table->n;
     int j, v;
     char *k;
-    //bubble sorting the keys
+    //insertion sort in the keys
     for (int i = 1; i < num; i++){
         k = final->str[i];
         v = final->val[i];
@@ -66,6 +66,7 @@ int main(int argc, char *argv[]) {
     // começa leitura do arquivo
 	FILE *input = fopen(argv[1], "r");
     char word[100];
+
 
     while ((fscanf(input, "%s", word)) != EOF) {
         // vê se palavra já está na hashtable
