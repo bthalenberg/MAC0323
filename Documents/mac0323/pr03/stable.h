@@ -12,15 +12,15 @@ typedef struct stable_s *SymbolTable;
 
 // Data stored.
 typedef union {
-  int i;
-  char *str;
-  void *p;
+    int i;
+    char *str;
+    void *p;
 } EntryData;
 
 // Return struct for stable_insert.
 typedef struct {
-  int new;  // Was a new entry created?
-  EntryData *data;  // Data associated with entry.
+    int new;  // Was a new entry created?
+    EntryData *data;  // Data associated with entry.
 } InsertionResult;
 
 /*

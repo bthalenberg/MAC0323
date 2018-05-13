@@ -1,5 +1,5 @@
-#include "stable.h"
 #include "aux.h"
+#include "stable.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -9,7 +9,7 @@ answer *final;
 //initializes the answer
 static void init(SymbolTable table){
     // creating new answer
-    // final = malloc(sizeof(answer));
+    final = malloc(sizeof(answer));
     final->val = malloc(table->n * sizeof(int));
     final->str = malloc(table->n * sizeof(100 * sizeof(char)));
     final->index=0;
@@ -19,7 +19,7 @@ static void init(SymbolTable table){
 int visit(const char *key, EntryData *data){
     if(data == NULL) return 0;
     //if data is there, updates the answer array
-    final->str[final->index] = key;
+    final->str[final->index] = (char*) key;
     final->val[final->index] = data->i;
     final->index++;
     int len = strlen(key);
@@ -30,24 +30,31 @@ int visit(const char *key, EntryData *data){
 //sorts the array and prints the result
 static void sortAndPrint(SymbolTable table){
     int num = table->n;
+    int j, v;
+    char *k;
     //bubble sorting the keys
-    for (int i = 0; i < num; i++){
-        for (int j = 0; j < num-1; j++){
-            if (strcmp(final->str[j], final->str[j+1]) > 0){
-                //some swaps
-                char *t1 = final->str[j];
-                final->str[j] = final->str[j+1];
-                final->str[j+1] = t1;
-                int t2 = final->val[j];
-                final->val[j] = final->val[j+1];
-                final->val[j+1] = t2;
-            }
+    for (int i = 1; i < num; i++){
+        k = final->str[i];
+        v = final->val[i];
+        j = i - 1;
+        while (j >= 0 && strcmp(final->str[j], k) > 0) {
+            final->str[j+1] = final->str[j];
+            final->val[j+1] = final->val[j];
+            j--;
         }
+        final->str[j+1] = k;
+        final->val[j+1] = v;
     }
+
     //print the answer
     for (int i = 0; i < num; i++){
-        printf("%s:%.*%d\n", table->str[i], final->maxLen, table->val[i]);
+        printf("%s:%.*d\n", final->str[i], final->maxLen, final->val[i]);
     }
+    free(final->val);
+    final->val = NULL;
+    free(final->str);
+    final->str = NULL;
+    free(final);
 }
 
 int main(int argc, char *argv[]) {

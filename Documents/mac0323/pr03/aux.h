@@ -1,4 +1,5 @@
 #include "stable.h"
+
 //auxiliar structure for the linked list
 typedef struct {
     //value
@@ -10,14 +11,14 @@ typedef struct {
 } Node;
 
 
-typedef struct {
+struct stable_s {
     // array of linked lists
     Node **data;
     // number of keys in st
     int n;
     //previous M
     int prIndex;
-} stable_s;
+};
 
 
 typedef struct {

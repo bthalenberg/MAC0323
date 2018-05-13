@@ -13,7 +13,6 @@ const int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
   Return a new symbol table.
 */
 SymbolTable stable_create() {
-    //ta dando merda na def de symboltable
     SymbolTable *ht = malloc(sizeof (SymbolTable));
     (*ht)->data = malloc(primes[0] * sizeof(Node));
     for (int h = 0; h < primes[0]; h++) (*ht)->data[h] = NULL;
@@ -26,7 +25,7 @@ SymbolTable stable_create() {
   Destroy a given symbol table.
 */
 void stable_destroy(SymbolTable table) {
-    for (int h = 0; h < table -> M; h++) {
+    for (int h = 0; h < primes[table->prIndex]; h++) {
         free(table->data[h]);
         table->data[h] = NULL;
     }
@@ -91,7 +90,7 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         // create new node
         Node *n = malloc(sizeof(Node));
         n->data = dat;
-        n->str = key;
+        n->str = (char*) key;
         n->nxt = NULL;
         // if list is empty, key is the new head
         if (table->data[h] == NULL) table->data[h] = n;
@@ -135,12 +134,6 @@ EntryData *stable_find(SymbolTable table, const char *key) {
 
 
 /*
-    Function that does something to each data point visited during
-    stable_visit
-*/
-
-
-/*
   Visit each entry on the table.
   The visit function is called on each entry, with pointers to its key
   and data. If the visit function returns zero, then the iteration
@@ -155,15 +148,13 @@ int stable_visit(SymbolTable table,
         //goes through the respective linked list
         if(table->data[h] != NULL){
             Node *this = table->data[h];
-            visit(this[h]->str, this[h]->data);
+            visit(this[h].str, this[h].data);
             this = this->nxt;
             while (this != NULL){
-                visit(this[h]->str, this[h]->data);
+                visit(this[h].str, this[h].data);
                 this = this->nxt;
             }
         }
     }
-
-    final(table);
     return 1;
 }
