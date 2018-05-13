@@ -156,11 +156,16 @@ EntryData *stable_find(SymbolTable table, const char *key) {
 int stable_visit(SymbolTable table,
                  int (*visit)(const char *key, EntryData *data)) {
     //for each possible node
+    int r;
     for (int h = 0; h < primes[table->prIndex]; h++){
         //goes through the respective linked list
         if(table->data[h] != NULL){
             Node *this = table->data[h];
-            visit(this->str, this->data);
+            r = visit(this->str, this->data);
+            if (r == 0) {
+                fprintf(stderr, "Erro ao ler as entradas.\n");
+                return r;
+            }
             this = this->nxt;
             while (this != NULL){
                 visit(this->str, this->data);
