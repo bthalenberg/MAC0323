@@ -66,8 +66,10 @@ int main(int argc, char *argv[]) {
     // começa leitura do arquivo
 	FILE *input = fopen(argv[1], "r");
     char word[100];
+
     while ((fscanf(input, "%s", word)) != EOF) {
         // vê se palavra já está na hashtable
+        // SEGFAULT AQUI
         InsertionResult r = stable_insert(st, word);
         // se não está, insere
         if (r.new != 0)
@@ -81,6 +83,7 @@ int main(int argc, char *argv[]) {
 
     // cria a estrutura da resposta
     init(st);
+
     // faz o processo de iteração
     int res = stable_visit(st, visit);
     if (res == 0) fprintf(stderr, "Erro ao percorrer as entradas!\n");

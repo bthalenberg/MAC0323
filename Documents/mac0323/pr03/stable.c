@@ -13,12 +13,12 @@ const int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
   Return a new symbol table.
 */
 SymbolTable stable_create() {
-    SymbolTable *ht = malloc(sizeof (SymbolTable));
-    (*ht)->data = malloc(primes[0] * sizeof(Node));
-    for (int h = 0; h < primes[0]; h++) (*ht)->data[h] = NULL;
-    (*ht)->n = 0;
-    (*ht)->prIndex = 0;
-    return *ht;
+    SymbolTable ht = malloc(sizeof (SymbolTable));
+    ht->data = malloc(primes[0] * sizeof(Node));
+    for (int h = 0; h < primes[0]; h++) ht->data[h] = NULL;
+    ht->n = 0;
+    ht->prIndex = 0;
+    return ht;
 }
 
 /*
@@ -40,6 +40,7 @@ void stable_destroy(SymbolTable table) {
 static int hash(const char *key, int index) {
     //regular rolling hash function
     unsigned int h = key[0];
+
     for (int i = 1; key[i] != '\0'; i++)
         h = (h * 251 + key[i]) % primes[index];
     return h;
@@ -79,12 +80,13 @@ static void rehash(SymbolTable table) {
 InsertionResult stable_insert(SymbolTable table, const char *key) {
     EntryData *dat = stable_find(table, key);
     InsertionResult *res = malloc(sizeof(InsertionResult));
+
     // if we did not find the key, we need to insert it
     if (dat == NULL) {
         table->n++;
         if (table->n/primes[table->prIndex] > 10) rehash(table);
         res->new = 1;
-        int h = hash(key, primes[table->prIndex]);
+        int h = hash(key, table->prIndex);
         dat = malloc(sizeof(EntryData));
         res->data = dat;
         // create new node
@@ -117,8 +119,9 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
 */
 EntryData *stable_find(SymbolTable table, const char *key) {
     // finds in which linked list the key is supposed to be
-    int h = hash(key,table->prIndex);
+    int h = hash(key, table->prIndex);
     Node *this = table->data[h];
+
     // if list is empty, key isn't there
     if (this == NULL) return NULL;
     // if list isn't empty, we traverse the list trying to find the key
