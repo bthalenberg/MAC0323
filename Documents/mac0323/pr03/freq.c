@@ -10,8 +10,8 @@ answer *final;
 static void init(SymbolTable table){
     // creating new answer
     final = malloc(sizeof(answer));
-    final->val = malloc(table->n * sizeof(int));
-    final->str = malloc(table->n * sizeof(100 * sizeof(char)));
+    final->val = malloc((table->n + 1 )* sizeof(int));
+    final->str = malloc((table->n + 1) * sizeof(100 * sizeof(char)));
     final->index=0;
 }
 
@@ -89,7 +89,6 @@ int main(int argc, char *argv[]) {
     if (res == 0) fprintf(stderr, "Erro ao percorrer as entradas!\n");
     // ordena e imprime as entradas
     else sortAndPrint(st);
-
     stable_destroy(st);
     return 0;
 }
