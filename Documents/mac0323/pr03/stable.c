@@ -104,10 +104,12 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         if (table->n/primes[table->prIndex] > 10) rehash(table);
         res->new = 1;
         int h = hash(key, table->prIndex);
+        printf("%d\n", h);
         EntryData *dat = malloc(sizeof(EntryData));
         res->data = dat;
         // create new node
         Node *n = malloc(sizeof(Node));
+        printf("%p\n", (void*)&n);
         n->data = dat;
         n->str = (char*) key;
         n->nxt = NULL;
@@ -115,6 +117,7 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         if (table->data[h] == NULL) table->data[h] = n;
         // else we go to the end of the list to add the new data
         else {
+            printf("colisão.\n");
             Node *last = table->data[h];
             while (last->nxt != NULL) last = last->nxt;
             // add link to new node

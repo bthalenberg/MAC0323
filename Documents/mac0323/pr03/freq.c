@@ -76,11 +76,11 @@ int main(int argc, char *argv[]) {
 
     while ((fscanf(input, "%s", word)) != EOF) {
         // vê se palavra já está na hashtable
-        // SEGFAULT AQUI
         InsertionResult r = stable_insert(st, word);
         // se não está, insere
-        if (r.new != 0)
+        if (r.new != 0) {
             r.data->i = 1;
+        }
         // se está, atualiza valor
         else r.data->i++;
     }

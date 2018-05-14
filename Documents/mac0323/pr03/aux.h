@@ -15,9 +15,9 @@ struct stable_s {
     // array of linked lists
     Node **data;
     // number of keys in st
-    int *n;
+    int n;
     //previous M
-    int *prIndex;
+    int prIndex;
 };
 
 
