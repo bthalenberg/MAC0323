@@ -62,24 +62,25 @@ static int hash(const char *key, int index) {
         h = (h * 251 + key[i]) % primes[index];
     return h;
 }
-/*
-    Rehashing to keep load factor under 10
-*/
-static void rehash(SymbolTable table) {
-    // realloc
 
-    SymbolTable newTable = malloc((primes[table->prIndex] + 1) * sizeof(Node));
-    newTable->n = table->n;
-    newTable->prIndex = table->prIndex+1;
-    for (int i = 0; i < table->prIndex ; i++) {
-        while (table->data[i] != NULL) {
-            stable_insert(newTable, table->data[i]->str);
-            table->data[i] = table->data[i]->nxt;
-        }
-    }
-    stable_destroy(table);
-    table = newTable;
-}
+/*
+    (Optional) Rehashing to keep load factor under 10 (that we couldn't make work)
+*/
+// static void rehash(SymbolTable table) {
+//     // realloc
+//
+//     SymbolTable newTable = malloc((primes[table->prIndex]) * sizeof(Node));
+//     newTable->n = table->n;
+//     newTable->prIndex = table->prIndex+1;
+//     for (int i = 0; i < table->prIndex ; i++) {
+//         while (table->data[i] != NULL) {
+//             stable_insert(newTable, table->data[i]->str);
+//             table->data[i] = table->data[i]->nxt;
+//         }
+//     }
+//     stable_destroy(table);
+//     table = newTable;
+// }
 
 Node *createNode() {
     EntryData *dat = malloc(sizeof(EntryData));
@@ -104,7 +105,8 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
     // if we did not find the key, we need to insert it
     if (dat == NULL) {
         table->n++;
-        if (table->n/primes[table->prIndex] > 10) rehash(table);
+        //if (table->n/primes[table->prIndex] > 10) {rehash(table);
+        //printf("\n");}
         res->new = 1;
         int h = hash(key, table->prIndex);
         Node *n = createNode();
