@@ -47,7 +47,7 @@ static void sortAndPrint(SymbolTable table){
         k = final->str[i];
         v = final->val[i];
         j = i - 1;
-        while (j >= 0 && strcmp(final->str[j], k) > 0) {
+        while (j >= 0 && (k != NULL && strcmp(final->str[j], k) > 0)) {
             final->str[j+1] = final->str[j];
             final->val[j+1] = final->val[j];
             j--;
