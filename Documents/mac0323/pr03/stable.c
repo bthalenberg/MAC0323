@@ -141,14 +141,14 @@ EntryData *stable_find(SymbolTable table, const char *key) {
     // finds in which linked list the key is supposed to be
     int h = hash(key, table->prIndex);
     Node *this = table->data[h];
-
     // if list is empty, key isn't there
     if (this == NULL) return NULL;
     // if list isn't empty, we traverse the list trying to find the key
     else {
-        while (this != NULL || strcmp(this->str, key) != 0)
+        while (this != NULL && strcmp(this->str, key) != 0)
             this = this->nxt;
     }
+
     // if we got to the end of the list without finding it, the key isn't there
     if (this == NULL) return NULL;
     // else we found it
