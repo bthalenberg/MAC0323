@@ -58,7 +58,9 @@ static void sortAndPrint(SymbolTable table){
 
     //print the answer
     for (int i = 0; i < num; i++){
-        printf("%.*s %d\n", final->maxLen, final->str[i], final->val[i]);
+        int len = 0;
+        if(final->str[i] != NULL) len = strlen(final->str[i]);
+        printf("%s %*d\n", final->str[i], (final->maxLen)-len+1, final->val[i]);
     }
 }
 
@@ -72,7 +74,6 @@ int main(int argc, char *argv[]) {
     // começa leitura do arquivo
 	FILE *input = fopen(argv[1], "r");
     char word[100];
-
 
     while ((fscanf(input, "%s", word)) != EOF) {
         // vê se palavra já está na hashtable

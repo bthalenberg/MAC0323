@@ -19,7 +19,7 @@ SymbolTable stable_create() {
         free (ht);
         return NULL;
     }
-    ht->data = malloc((primes[0] + 1) * sizeof(Node));
+    ht->data = malloc((primes[0]) * sizeof(Node));
     if (ht->data == NULL) {
         free (ht->data);
         return NULL;
@@ -56,13 +56,12 @@ void stable_destroy(SymbolTable table) {
 
 static int hash(const char *key, int index) {
     //regular rolling hash function
-    unsigned int h = key[0];
+    unsigned int h = key[0] % primes[index];
 
     for (int i = 1; key[i] != '\0'; i++)
         h = (h * 251 + key[i]) % primes[index];
     return h;
 }
-
 /*
     Rehashing to keep load factor under 10
 */
