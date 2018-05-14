@@ -74,9 +74,6 @@ static void rehash(SymbolTable table) {
     newTable->prIndex = table->prIndex+1;
     for (int i = 0; i < table->prIndex ; i++) {
         while (table->data[i] != NULL) {
-            //mudei isso mas pode estar errado
-            //InsertionResult res = stable_insert(newTable, table->data[i]->str);
-            //res.data = table->data[i]->data;
             stable_insert(newTable, table->data[i]->str);
             table->data[i] = table->data[i]->nxt;
         }
@@ -85,11 +82,10 @@ static void rehash(SymbolTable table) {
     table = newTable;
 }
 
-Node *createNode(const char *key) {
+Node *createNode() {
     EntryData *dat = malloc(sizeof(EntryData));
     Node *n = malloc(sizeof(Node));
     n->data = dat;
-    n->str = (char*) key;
     n->nxt = NULL;
     return n;
 }
@@ -112,7 +108,7 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         if (table->n/primes[table->prIndex] > 10) rehash(table);
         res->new = 1;
         int h = hash(key, table->prIndex);
-        Node *n = createNode(key);
+        Node *n = createNode();
         // if list is empty, key is the new head
         if (table->data[h] == NULL) table->data[h] = n;
         // else we go to the end of the list to add the new data
@@ -122,6 +118,8 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
             // add link to new node
             last->nxt = n;
         }
+        n->str = malloc(sizeof key);
+        strcpy(n->str, key);
         res->data = n->data;
     }
     // if we found the key, we need to return it
@@ -145,10 +143,11 @@ EntryData *stable_find(SymbolTable table, const char *key) {
     if (this == NULL) return NULL;
     // if list isn't empty, we traverse the list trying to find the key
     else {
-        while (this != NULL && strcmp(this->str, key) != 0)
+        while (this != NULL && strcmp(this->str, key) != 0) {
             this = this->nxt;
-    }
 
+        }
+    }
     // if we got to the end of the list without finding it, the key isn't there
     if (this == NULL) return NULL;
     // else we found it
