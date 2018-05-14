@@ -85,6 +85,14 @@ static void rehash(SymbolTable table) {
     table = newTable;
 }
 
+Node *createNode(const char *key) {
+    EntryData *dat = malloc(sizeof(EntryData));
+    Node *n = malloc(sizeof(Node));
+    n->data = dat;
+    n->str = (char*) key;
+    n->nxt = NULL;
+    return n;
+}
 /*
   Insert a new entry on the symbol table given its key.
   If there is already an entry with the given key, then a struct
@@ -104,25 +112,17 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
         if (table->n/primes[table->prIndex] > 10) rehash(table);
         res->new = 1;
         int h = hash(key, table->prIndex);
-        printf("%d\n", h);
-        EntryData *dat = malloc(sizeof(EntryData));
-        res->data = dat;
-        // create new node
-        Node *n = malloc(sizeof(Node));
-        printf("%p\n", (void*)&n);
-        n->data = dat;
-        n->str = (char*) key;
-        n->nxt = NULL;
+        Node *n = createNode(key);
         // if list is empty, key is the new head
         if (table->data[h] == NULL) table->data[h] = n;
         // else we go to the end of the list to add the new data
         else {
-            printf("colisão.\n");
             Node *last = table->data[h];
             while (last->nxt != NULL) last = last->nxt;
             // add link to new node
             last->nxt = n;
         }
+        res->data = n->data;
     }
     // if we found the key, we need to return it
     else {
