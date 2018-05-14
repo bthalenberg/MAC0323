@@ -117,7 +117,7 @@ InsertionResult stable_insert(SymbolTable table, const char *key) {
             // add link to new node
             last->nxt = n;
         }
-        n->str = malloc(sizeof key);
+        n->str = malloc(strlen(key) + 1);
         strcpy(n->str, key);
         res->data = n->data;
     }
