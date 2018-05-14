@@ -58,7 +58,7 @@ static void sortAndPrint(SymbolTable table){
 
     //print the answer
     for (int i = 0; i < num; i++){
-        printf("%s:%.*d\n", final->str[i], final->maxLen, final->val[i]);
+        printf("%.*s %d\n", final->maxLen, final->str[i], final->val[i]);
     }
 }
 
@@ -77,6 +77,7 @@ int main(int argc, char *argv[]) {
     while ((fscanf(input, "%s", word)) != EOF) {
         // vê se palavra já está na hashtable
         InsertionResult r = stable_insert(st, word);
+
         // se não está, insere
         if (r.new != 0) {
             r.data->i = 1;
@@ -94,6 +95,7 @@ int main(int argc, char *argv[]) {
     // faz o processo de iteração
     int res = stable_visit(st, visit);
     if (res == 0) fprintf(stderr, "Erro ao percorrer as entradas!\n");
+
     // ordena e imprime as entradas
     else sortAndPrint(st);
     destroyAnswer();
