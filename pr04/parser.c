@@ -1,4 +1,12 @@
+#include <stdio.h>
+#include <string.h>
+#include "error.h"
+#include "stable.h"
+#include "asmtypes.h"
+#include "opcodes.h"
+#include "optable.h"
 #include "parser.h"
+#include "buffer.h"
 
 /*
   Return instruction corresponding to assembly language line.
