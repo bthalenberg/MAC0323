@@ -7,8 +7,29 @@
 #include "error.h"
 #include "asmtypes.h"
 
+// finds error position
+int get_error_position(const char *errptr, Buffer *b) {
+    return 0;
+}
+
+// prints error message
+void print_error(const char *errptr, Buffer *b, int line) {
+    const char *error_msg;
+    int pos;
+    error_msg = get_error_msg();
+    pos = error_position(errptr, b);
+    // prints line with error
+    printf ("line %d: %s\n", line, b->data);
+    // blank spaces to align error msg
+    for (int i = 0; i < pos + 6; i++)   printf(" ");
+    // pointer and error msg
+    printf("^\n%s\n", error_msg);
+}
+
 int main(int argc, char* argv) {
     if (argc != 2) die("Invalid argument.\n");
+
+    set_prog_name("parse_test");
 
     SymbolTable *st = stable_create();
     Buffer *b = buffer_create();
@@ -32,7 +53,7 @@ int main(int argc, char* argv) {
             // aqui vem código para printar instruções
         }
         // if an error occurred, prints error message to stderr with line
-        else print_error(errptr, bu, cur);
+        else print_error(errptr, b, cur);
         printf("\n");
         cur++;
     }
