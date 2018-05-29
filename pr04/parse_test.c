@@ -7,12 +7,16 @@
 #include "error.h"
 #include "asmtypes.h"
 
-// finds error position
+/*
+    Finds error position in a string
+*/
 int get_error_position(const char *errptr, Buffer *b) {
     return 0;
 }
 
-// prints error message
+/*
+    Prints error message
+*/
 void print_error(const char *errptr, Buffer *b, int line) {
     const char *error_msg;
     int pos;
@@ -26,6 +30,22 @@ void print_error(const char *errptr, Buffer *b, int line) {
     printf("^\n%s\n", error_msg);
 }
 
+/*
+   Returns string containing type of operand for output formatting
+*/
+char *get_operand_string (OperandType type) {
+    char *operand = " ";
+    if (type == LABEL) return operand = "Label";
+    if (type == REGISTER) return operand = "Register";
+    if (type == NUMBER_TYPE) return operand = "Number";
+    if (type == STRING) return operand = "String";
+    return operand;
+
+}
+
+/*
+    Prints instructions to StdOut
+*/
 void print_instruction(Instruction instr) {
     // Print label
     if (instr->label) printf ("label    = \"%s\"\n", instr->label);
@@ -34,8 +54,39 @@ void print_instruction(Instruction instr) {
     // Print operator
     printf ("operator = %s\n", instr->op->name);
 
-    // Prints operands
-    // FAZER ESSE CÓDIGO
+    // Print operands
+    // CASE NO OPERANDS
+    if (instr->opds[0]->type == 0 && instr->opds[1]->type == 0 && instr->opds[2]->type == 0)
+       printf ("operand  = n/a\n");
+
+    // CASE ONE OPERAND of type string
+    if (instr->opds[0]->type == STRING)
+       printf ("operand  = %s(%s)\n", get_operand_string(instr->opds[0]->type), instr->opds[0]->value.str);
+    // CASE ONE OPERAND of type label
+    else if (instr->opds[1]->type == 0 && instr->opds[2]->type == 0 && instr->opds[0]->type == LABEL)
+       printf ("operand  = %s(\"%s\")\n", get_operand_string(instr->opds[0]->type), instr->opds[0]->value.label);
+    // CASE ONE OPERAND not a label
+    else if (instr->opds[1]->type == 0 && instr->opds[2]->type == 0) {
+        printf ("operand  = %s(%d)\n", get_operand_string(instr->opds[0]->type), instr->opds[0]->value);
+    }
+
+    // CASE TWO OPERANDS, one being a label
+    else if (instr->opds[2]->type == 0 && instr->opds[1]->type == LABEL) {
+       printf ("operands = %s(%d)", get_operand_string(instr->opds[0]->type), instr->opds[0]->value);
+       printf (", %s(\"%s\")\n", get_operand_string(instr->opds[1]->type), instr->opds[1]->value.label);
+    }
+   // CASE TWO OPERANDS, none a label
+    else if (instr->opds[2]->type == 0) {
+       printf ("operands = %s(%d)", get_operand_string(instr->opds[0]->type), instr->opds[0]->value);
+       printf (", %s(%d)\n", get_operand_string(instr->opds[1]->type), instr->opds[1]->value);
+    }
+
+    // CASE THREE OPERANDS
+    else {
+       printf ("operands = %s(%d)", get_operand_string(instr->opds[0]->type), instr->opds[0]->value);
+       printf (", %s(%d)", get_operand_string(instr->opds[1]->type), instr->opds[1]->value);
+       printf (", %s(%d)\n", get_operand_string(instr->opds[2]->type), instr->opds[2]->value);
+    }
 }
 
 /*
@@ -72,6 +123,7 @@ int assignment_function(char *s, int i) {
             // AQUI FALTA TRANSFORMAR PARA TIPO DO OPERANDO
             OperandValue val = b;
             res->data = val;
+            // AQUI VEM CHAMADA PARA PRINT INSTRUCTION
         }
     }
     return 1;
