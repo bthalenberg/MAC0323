@@ -82,13 +82,8 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         opt = optable_find(aux->data);
         // not an operator. first word should be label or operator.
         if (!opt) {
-            printf("words[0] is label; %s\n", aux);
-            // check if it is a valid label (TO-DO)
-            if (!validate_label(aux)) {
-                set_error_msg("expected label or operator\n");
-                if (errptr) *errpt = &s[i - (aux->i - 1)];
-                return 0;
-            }
+            // validates label
+            if (!validate_label(aux, s, errptr)) return 0;
             // if it is a label, saves it
             label = emalloc(sizeof(aux->data));
             strcpy(label, aux->data);
