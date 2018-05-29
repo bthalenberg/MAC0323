@@ -23,7 +23,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
 	breakWords(s, words);
 }
 
-static void breakWords(const char *s, char **words){
+static void breakWords(const char *s, char *words[]){
 	char *token;
 	int i = 0;
 	token = strtok(s, " ,");
@@ -32,3 +32,4 @@ static void breakWords(const char *s, char **words){
 		token = strtok (NULL, " ,");
 	}	
 }
+
