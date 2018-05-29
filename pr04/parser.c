@@ -58,6 +58,17 @@ int validate_label(Buffer *l, const char *s, const char **errptr) {
 }
 
 /*
+    Finds out number of arguments operator is supposed to have
+*/
+
+int number_of_operands (const Operator *opt) {
+    int num = 0;
+    for (int i = 0; i < 3; i++)
+        if (opt->opd_types[i] != OP_NONE) num++;
+    return num;
+}
+
+/*
   Return instruction corresponding to assembly language line.
   INPUT:
   - s -- line of assembly code.
@@ -100,28 +111,28 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         }
         // first word is an operator
         else label = NULL;
-        // READS OPERANDS
-        int opds;
         // finds how many operands operator is supposed to have (TO-DO)
-
+        int opds = number_of_operands(opt);
         // reads them one by one
         int k;
         for (k = 0; k < opds; k++) {
             i = read_word(s, aux, i);
-            // checks if number of operands is correct (TO DO)
+            // validates operand
 
-            // checks if operand is valid (TO DO)
-
-            // does something with operands
+            // adds it to opd array
 
         }
+        // checks if number of operands is correct (TO DO)
+
         // inserts OP_NONES, if any
         while (k < 3) {
             opd[k] = emalloc(sizeof(Operand));
             opd[k]->type = OP_NONE;
             k++
         }
-        // saves instruction in instruction list (TO DO)
+        // saves instruction in instruction list (TO FIX)
+        Instruction *new = instr_create(label, opt, opds);
+        // traverse linked list received (**instr) and adds it to end
 
         // goes to the start of next instruction, if any
         while (isspace(s[i])) i++;
