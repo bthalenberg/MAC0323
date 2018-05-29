@@ -26,6 +26,18 @@ void print_error(const char *errptr, Buffer *b, int line) {
     printf("^\n%s\n", error_msg);
 }
 
+void print_instruction(Instruction instr) {
+    // Print label
+    if (instr->label) printf ("label    = \"%s\"\n", instr->label);
+    else printf ("label    = n/a\n");
+
+    // Print operator
+    printf ("operator = %s\n", instr->op->name);
+
+    // Prints operands
+    // FAZER ESSE CÓDIGO
+}
+
 /*
   Reads a line in search for assignment operador IS
   If not found, returns 0;
@@ -43,20 +55,24 @@ int assignment_function(char *s, int i) {
     // Scans in search for IS
     while (s[i] != '\0' && s[i] != '\n' && s[i] == 'I')
         if (!isspace(s[i]) buffer_push_back (b, s[i++]);
+    // acabou a linha sem achar
     if (s[i] == '\0' || s[i] == '\n') return 0;
-    else if (s[i] == 'S') {
-//         char *label = read_label(b);
-//         InsertionResult res = stable_insert(st, label);
-//         if (res.new == 0) {
-//             fprintf(stderr, "line     = %s\n", b->data);
-//             fprintf(stderr, "Invalid assignment: %s is already assigned.\n", label);
-//             return 0;
-
-//         }
-//         else {
-//             OP value = read_value();
-//             res->data = value;
-//         }
+    // achou o IS, a partir de agora vai ler espaços e o valor
+    else if (s[i++] == 'S') {
+        InsertionResult res = stable_insert(st, b);
+        if (res.new == 0) {
+            fprintf(stderr, "line     = %s\n", b->data);
+            fprintf(stderr, "Invalid assignment: %s is already assigned.\n", label);
+            return 0;
+        }
+        else {
+            buffer_reset(b);
+            while (s[i] != '\0' && s[i] != '\n' && !isspace(s[i]))
+                buffer_push_back (b, s[i++]);
+            // AQUI FALTA TRANSFORMAR PARA TIPO DO OPERANDO
+            OperandValue val = b;
+            res->data = val;
+        }
     }
     return 1;
 }
@@ -85,7 +101,10 @@ int main(int argc, char* argv) {
         // if parse was successful, prints line and instr content
         else if (parse (b->data, st, &instr, &errptr)) {
             if (b->data[0] != '*') printf ("line     = %s\n", b->data);
-            // aqui vem código para printar instruções
+            while (instr) {
+                print_instruction(instr);
+                instr = instr->next;
+            }
         }
         // if an error occurred, prints error message to stderr with line
         else print_error(errptr, b, cur);
