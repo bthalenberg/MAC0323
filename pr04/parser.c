@@ -19,31 +19,59 @@
   where the error was found.
 */
 int parse(const char *s, SymbolTable alias_table, Instruction **instr, const char **errptr) {
-	char *words[100];
-	breakWords(s, words);
+	Buffer *aux = buffer_create();
+    int i = 0;
+    const Operador *opt;
+    char *label;
+    // reads s until EOL
+    while (s[i] != '\0' && s[i] != '\n' ) {
+        // reads word for word
+	    i = read_word(s, aux, i);
+        // if there was no word, line is empty
+        if (!aux->i) return 1;
+        // is the word an operator?
+        opt = optable_find(aux->data);
+        // not an operator. first word should be label or operator.
+        if (!opt) {
+            printf("words[0] is label; %s\n", aux);
+            // check if it is a valid label (TO-DO)
+            if (!validate_label(aux)) {
+                set_error_msg("expected label or operator\n");
+                if (errptr) *errpt = &s[i - (aux->i - 1)];
+                return 0;
+            }
+            // if it is a label, saves it
+            label = emalloc(sizeof(aux->data));
+            strcpy(label, aux->data);
+            // see if next word is operator
+            i = read_word(s, aux, i);
+    		opt = optable_find(aux->data);
+            // check if valid
+            if (!opt) {
+                set_error_msg("expected operator\n");
+                if (errptr) *errpt = &s[i - (aux->i - 1)];
+                return 0;
+            }
+        }
+        // first word is an operator
+        else label = NULL;
+    }
 	return 0;
 }
 
-static void breakWords(const char *s, char *words[]){
-	char *token;
-	int i = 0;
-	char *copy = malloc((strlen(s) + 1) * sizeof(char));
-	strcpy(copy,s);
-	token = strtok(copy, " ,");
-	while(token != NULL && token[0] != '*'){ 
-		words[i++] = token;
-		token = strtok (NULL, " ,");
-	}	
-}
-
-static void checkWords(char *words[], Instruction **instr){
-	
-	Operator *op = optable_find(words[0]);
-	if(op == NULL) {
-		printf("words[0] is label; %s\n", words[0]);
-		op = optable_find(words[1]);
-		printf("%s is the Operator\n", words[1]);
-	}
-	printf("%s is the Operator\n", words[1]);
-
+/*
+    Reads one word in s starting from index i
+    and returns last index read
+*/
+static int read_word(const char *s, Buffer *b, int i) {
+    // frees buffer to receive new word
+    buffer_reset(b);
+    // skip spaces
+    while (isspace(s[i])) i++;
+    // skip comments
+    if (s[i] == '*') return i;
+    // reads until EOL or space
+    while (s[i] != '\0' && s[i] != '\n' && !isspace(s[i]))
+        buffer_push_back(b, s[i++]);
+    return i;
 }
