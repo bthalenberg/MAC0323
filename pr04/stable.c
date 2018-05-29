@@ -1,221 +1,188 @@
+#include "aux.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include "stable.h"
-#include "error.h"
-#include "types.h"
+#include <stdlib.h>
 
-
-unsigned long init_size = 1024;
-
-
-/*
-  Hash function used to define key locations in the symbol table.
-*/
-unsigned long hash (const char* str) {
-
-    unsigned long hash = 5381;
-    int c;
-
-    while ((c = *str++) && *str != 0) {
-        hash = ((hash << 5) + hash) + c;
-    }
-    
-    return hash;
-}
+//Precisa ser algum primo dahora
+const int primes[] = {97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717,
+    51437, 102877, 205759, 411527, 823117, 1646237, 3292489, 6584983,
+    13169977, 26339969, 52679969, 105359939, 210719881, 421439783,
+    842879579, 1685759167};
 
 /*
   Return a new symbol table.
 */
 SymbolTable stable_create() {
-
-    unsigned long j;
-    
-    SymbolTable stable = emalloc (sizeof(*stable)); 
-    stable->data = emalloc (init_size * sizeof(*stable->data));
-    
-    stable->size = init_size;
-    stable->count = 0;
-    
-    //Make sure that the frequencies are zero.
-    for (j = 0; j < init_size; j++) {
-        
-        stable->data[j].input = emalloc (sizeof(EntryData));
-
-        stable->data[j].key = emalloc (1024);
-        
-        stable->data[j].input->i = 0;
-        stable->data[j].key = NULL;
+    SymbolTable ht = malloc(sizeof (SymbolTable));
+    // checks if malloc was successfull
+    if (ht == NULL) {
+        free (ht);
+        return NULL;
     }
-    
-    return stable;
-}
-
-/*
-  Local function that reallocs the symbol table,
-  in case the original size was not big enough.
-*/
-void reallocSTable(SymbolTable table) {
-    
-    short int cmp;
-    unsigned long i, ind;
-    SymbolTable new;
-    
-    init_size *= 2;
-    
-    new = stable_create();
-    new->count = table->count;
-    
-    for (i = 0; i < table->size; i++) {
-        
-        if (table->data[i].key != NULL) {
-            
-            ind = hash(table->data[i].key)%new->size;
-
-            while(new->data[ind].key != NULL && 
-                (cmp = strcmp(new->data[ind].key, table->data[i].key))) { 
-                    ind++;
-                    ind = ind%new->size;
-            }
-
-            new->data[ind].key = estrdup(table->data[i].key);
-            new->data[ind].input->i = table->data[i].input->i;
-        }
+    ht->data = malloc((primes[0]) * sizeof(Node));
+    if (ht->data == NULL) {
+        free (ht->data);
+        return NULL;
     }
-    
-    for (i = 0; i < table->size; i++)
-        free(table->data[i].key);
-    
-    free(table->data);
-    
-    table->size *= 2;
-    table->data = new->data;
+    for (int h = 0; h < primes[0]; h++) ht->data[h] = NULL;
+    ht->n = 0;
+    ht->prIndex = 0;
+    return ht;
 }
 
 /*
   Destroy a given symbol table.
 */
 void stable_destroy(SymbolTable table) {
-
-    unsigned long i;
-    
-    for (i = 0; i < table->size; i++) {
-        if (table->data[i].key)
-            free(table->data[i].key);
-        /*Victor esteve aqui*/
-        if (table->data[i].input->opd != NULL)
-            operand_destroy(table->data[i].input->opd);
+    // free em todos os nodes
+    for (int h = 0; h < primes[table->prIndex]; h++) {
+        Node *head = table->data[h];
+        Node *t;
+        while (head != NULL) {
+            // free em todos os entrydata
+            t = head;
+            head = head->nxt;
+            free(t->data);
+            t->data = NULL;
+        }
     }
-
-    free(table->data);
-    table->data = NULL;
-
     free(table);
-    table = NULL;   
+    table = NULL;
 }
 
 /*
-  Insert a new entry on the symbol table given its key.
+    Hashing modular function
+*/
 
+static int hash(const char *key, int index) {
+    //regular rolling hash function
+    unsigned int h = key[0] % primes[index];
+
+    for (int i = 1; key[i] != '\0'; i++)
+        h = (h * 251 + key[i]) % primes[index];
+    return h;
+}
+
+/*
+    (Optional) Rehashing to keep load factor under 10 (that we couldn't make work)
+*/
+// static void rehash(SymbolTable table) {
+//     // realloc
+//
+//     SymbolTable newTable = malloc((primes[table->prIndex]) * sizeof(Node));
+//     newTable->n = table->n;
+//     newTable->prIndex = table->prIndex+1;
+//     for (int i = 0; i < table->prIndex ; i++) {
+//         while (table->data[i] != NULL) {
+//             stable_insert(newTable, table->data[i]->str);
+//             table->data[i] = table->data[i]->nxt;
+//         }
+//     }
+//     stable_destroy(table);
+//     table = newTable;
+// }
+
+Node *createNode() {
+    EntryData *dat = malloc(sizeof(EntryData));
+    Node *n = malloc(sizeof(Node));
+    n->data = dat;
+    n->nxt = NULL;
+    return n;
+}
+/*
+  Insert a new entry on the symbol table given its key.
   If there is already an entry with the given key, then a struct
   InsertionResult is returned with new == 0 and data pointing to the
   data associated with the entry. Otherwise, a struct is returned with
   new != 0 and data pointing to the data field of the new entry.
-
   If there is not enough space on the table, or if there is a memory
   allocation error, then crashes with an error message.
 */
 InsertionResult stable_insert(SymbolTable table, const char *key) {
-   
-    short int cmp;
-    unsigned long ind, end;
-    InsertionResult IR;
-    
-    end = ind = hash(key)%table->size;
-    
-    while(table->data[ind].key != NULL && 
-            (cmp = strcmp(key, table->data[ind].key))) {
-        
-        ind++;
-        ind = ind%table->size;
-        
-        //Check if all the positions were tested, if positive, realloc.
-        if (ind == end) {
-            reallocSTable(table);
-            ind = hash(key)%table->size;
+    EntryData *dat = stable_find(table, key);
+    InsertionResult *res = malloc(sizeof(InsertionResult));
+
+    // if we did not find the key, we need to insert it
+    if (dat == NULL) {
+        table->n++;
+        //if (table->n/primes[table->prIndex] > 10) {rehash(table);
+        //printf("\n");}
+        res->new = 1;
+        int h = hash(key, table->prIndex);
+        Node *n = createNode();
+        // if list is empty, key is the new head
+        if (table->data[h] == NULL) table->data[h] = n;
+        // else we go to the end of the list to add the new data
+        else {
+            Node *last = table->data[h];
+            while (last->nxt != NULL) last = last->nxt;
+            // add link to new node
+            last->nxt = n;
         }
+        n->str = malloc(strlen(key) + 1);
+        strcpy(n->str, key);
+        res->data = n->data;
     }
-
-    if (table->data[ind].key != NULL)
-        IR.new = 0;
-    
+    // if we found the key, we need to return it
     else {
-        
-        IR.new = 1;
-        table->data[ind].key = estrdup(key);
-        table->count++;
+        res->new = 0;
+        res->data = dat;
     }
-
-    IR.data = table->data[ind].input;
- 
-    return(IR);    
+    return *res;
 }
 
 /*
   Find the data associated with a given key.
-
   Given a key, returns a pointer to the data associated with it, or a
   NULL pointer if the key is not found.
 */
 EntryData *stable_find(SymbolTable table, const char *key) {
-    
-    short int cmp;
-    unsigned long ind;
-    EntryData* ED;
+    // finds in which linked list the key is supposed to be
+    int h = hash(key, table->prIndex);
+    Node *this = table->data[h];
+    // if list is empty, key isn't there
+    if (this == NULL) return NULL;
+    // if list isn't empty, we traverse the list trying to find the key
+    else {
+        while (this != NULL && strcmp(this->str, key) != 0) {
+            this = this->nxt;
 
-    ind = hash(key)%table->size;
-    
-    ED = emalloc(sizeof(EntryData));
-
-    while(table->data[ind].key && 
-            (cmp = strcmp(key, table->data[ind].key))) {
-        
-        ind++;
-        ind = ind%table->size;
+        }
     }
-
-    if (table->data[ind].key == NULL)
-        ED = NULL;
-    
-    else 
-        ED->i = table->data[ind].input->i;
-
-    return ED;
+    // if we got to the end of the list without finding it, the key isn't there
+    if (this == NULL) return NULL;
+    // else we found it
+    else return this->data;
 }
 
 
 /*
   Visit each entry on the table.
-
   The visit function is called on each entry, with pointers to its key
   and data. If the visit function returns zero, then the iteration
   stops.
-
   Returns zero if the iteration was stopped by the visit function,
   nonzero otherwise.
 */
-int stable_visit(SymbolTable table, 
-        int(*visit)(const char *key, EntryData *data)) {
-    
-    unsigned long ind, res;
-    ind = 0;
-
-    //Print the ordered data of the SymbolTable.
-    while ((res = visit(table->data[ind].key, table->data[ind].input)))
-        ind++;
-    
-    if (ind == table->count)
-        return 1;
-
-    return 0;
+int stable_visit(SymbolTable table,
+                 int (*visit)(const char *key, EntryData *data)) {
+    //for each possible node
+    int r;
+    for (int h = 0; h < primes[table->prIndex]; h++){
+        //goes through the respective linked list
+        if(table->data[h] != NULL){
+            Node *this = table->data[h];
+            r = visit(this->str, this->data);
+            if (r == 0) {
+                fprintf(stderr, "Erro ao ler as entradas.\n");
+                return r;
+            }
+            this = this->nxt;
+            while (this != NULL){
+                visit(this->str, this->data);
+                this = this->nxt;
+            }
+        }
+    }
+    return 1;
 }

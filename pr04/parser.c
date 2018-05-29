@@ -21,15 +21,29 @@
 int parse(const char *s, SymbolTable alias_table, Instruction **instr, const char **errptr) {
 	char *words[100];
 	breakWords(s, words);
+	return 0;
 }
 
 static void breakWords(const char *s, char *words[]){
 	char *token;
 	int i = 0;
-	token = strtok(s, " ,");
-	while(token != NULL){ 
+	char *copy = malloc((strlen(s) + 1) * sizeof(char));
+	strcpy(copy,s);
+	token = strtok(copy, " ,");
+	while(token != NULL && token[0] != '*'){ 
 		words[i++] = token;
 		token = strtok (NULL, " ,");
 	}	
 }
 
+static void checkWords(char *words[], Instruction **instr){
+	
+	Operator *op = optable_find(words[0]);
+	if(op == NULL) {
+		printf("words[0] is label; %s\n", words[0]);
+		op = optable_find(words[1]);
+		printf("%s is the Operator\n", words[1]);
+	}
+	printf("%s is the Operator\n", words[1]);
+
+}
