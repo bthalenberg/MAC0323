@@ -33,3 +33,13 @@ static void breakWords(const char *s, char *words[]){
 	}	
 }
 
+static void checkWords(char *words[]){
+	Operator *op = optable_find(const char *words[0]);
+	if(op == NULL) {
+		printf("words[0] is label; %s\n" words[0]);
+		op = optable_find(const char *words[1]);
+		printf("%s is the Operator\n", words[1]);
+	}
+	printf("%s is the Operator\n", words[1]);
+
+}
