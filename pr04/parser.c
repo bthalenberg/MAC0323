@@ -8,6 +8,53 @@
 #include "parser.h"
 #include "buffer.h"
 
+/* -----------------------------------------------------------------------------
+AUX FUNCTIONS
+------------------------------------------------------------------------------*/
+
+/*
+    Reads one word in s starting from index i
+    and returns last index read
+*/
+static int read_word(const char *s, Buffer *b, int i) {
+    // frees buffer to receive new word
+    buffer_reset(b);
+    // skip spaces
+    while (isspace(s[i])) i++;
+    // skip comments
+    if (s[i] == '*') return i;
+    // reads until EOL or space
+    while (s[i] != '\0' && s[i] != '\n' && !isspace(s[i]))
+        buffer_push_back(b, s[i++]);
+    return i;
+}
+
+/*
+    Validates supposed label
+    If l is a label, saves it in the ST and returns 1;
+    Else, sets error  message and returns 0;
+*/
+int validate_label(Buffer *l, const char *s, const char **errptr) {
+    int error = -1;
+    // check if first char is valid
+    if (!((l->data[0] >= 'A' && l->data[0] <= 'Z') || (l->data[0] >= 'a' && l->data[0] <= 'z') || l->data[0] == '_'))
+       error = 0;
+    // goes through string trying to find error
+    int i = 1;
+    while (l->data[i] != '\0' && l->data[i] != '\n') {
+        if (!((l->data[i] >= 'A' && l->data[i] <= 'Z') || (l->data[i] >= 'a' && l->data[i] <= 'z') || l->data[i] == '_' || (l->data[i] >= '0' && l->data[i] <= '9')))
+           error = i;
+        i++;
+    }
+    // not a valid label, error contains index with invalid char
+    if (error != -1) {
+        set_error_msg("expected label or operator\n");
+        if (errptr) *errptr = &s[ind - (l->i- 1 ) + aux];
+        return 0;
+    }
+    return 1;
+}
+
 /*
   Return instruction corresponding to assembly language line.
   INPUT:
@@ -57,21 +104,4 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         else label = NULL;
     }
 	return 0;
-}
-
-/*
-    Reads one word in s starting from index i
-    and returns last index read
-*/
-static int read_word(const char *s, Buffer *b, int i) {
-    // frees buffer to receive new word
-    buffer_reset(b);
-    // skip spaces
-    while (isspace(s[i])) i++;
-    // skip comments
-    if (s[i] == '*') return i;
-    // reads until EOL or space
-    while (s[i] != '\0' && s[i] != '\n' && !isspace(s[i]))
-        buffer_push_back(b, s[i++]);
-    return i;
 }
