@@ -114,9 +114,6 @@ int main(int argc, char* argv) {
     while (len) {
         len = read_line(f, b);
         if (len == 0) break;
-        // quando a instrução é o pseudo-operador IS, associar o valor do operando ao rótulo passado
-        // inserindo o par correspondente na alias_table. Se já foi associado, produzir mensagem de erro.
-        if (assignment_function()) continue;
         // if parse was successful, prints line and instr content
         if (parse (b->data, st, &instr, &errptr)) {
             if (b->data[0] != '*') printf ("line     = %s\n", b->data);
