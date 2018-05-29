@@ -40,11 +40,13 @@ int validate_label(Buffer *l, const char *s, const char **errptr) {
     if (!((l->data[0] >= 'A' && l->data[0] <= 'Z') || (l->data[0] >= 'a' && l->data[0] <= 'z') || l->data[0] == '_'))
        error = 0;
     // goes through string trying to find error
-    int i = 1;
-    while (l->data[i] != '\0' && l->data[i] != '\n') {
-        if (!((l->data[i] >= 'A' && l->data[i] <= 'Z') || (l->data[i] >= 'a' && l->data[i] <= 'z') || l->data[i] == '_' || (l->data[i] >= '0' && l->data[i] <= '9')))
-           error = i;
-        i++;
+    else {
+        int i = 1;
+        while (l->data[i] != '\0' && l->data[i] != '\n') {
+            if (!((l->data[i] >= 'A' && l->data[i] <= 'Z') || (l->data[i] >= 'a' && l->data[i] <= 'z') || l->data[i] == '_' || (l->data[i] >= '0' && l->data[i] <= '9')))
+               error = i;
+            i++;
+        }
     }
     // not a valid label, error contains index with invalid char
     if (error != -1) {
