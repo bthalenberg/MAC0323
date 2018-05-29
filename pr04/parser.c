@@ -19,5 +19,16 @@
   where the error was found.
 */
 int parse(const char *s, SymbolTable alias_table, Instruction **instr, const char **errptr) {
-    return 1;
+	char *words[100];
+	breakWords(s, words);
+}
+
+static void breakWords(const char *s, char **words){
+	char *token;
+	int i = 0;
+	token = strtok(s, " ,");
+	while(token != NULL){ 
+		words[i++] = token;
+		token = strtok (NULL, " ,");
+	}	
 }
