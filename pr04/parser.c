@@ -27,7 +27,7 @@ static void breakWords(const char *s, char *words[]){
 	char *token;
 	int i = 0;
 	token = strtok(s, " ,");
-	while(token != NULL){ 
+	while(token != NULL && Token[0] != '*'){ 
 		words[i++] = token;
 		token = strtok (NULL, " ,");
 	}	
