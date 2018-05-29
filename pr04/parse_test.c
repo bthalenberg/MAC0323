@@ -125,7 +125,7 @@ int main(int argc, char* argv) {
                 InsertionResult res = stable_insert(st, instr->opds[0]);
                 if (res.new == 0) {
                     fprintf(stderr, "line     = %s\n", b->data);
-                    fprintf(stderr, "Invalid assignment: %s is already assigned.\n", label);
+                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", label);
                 }
                 else res->data = instr->opds[1];
             }
