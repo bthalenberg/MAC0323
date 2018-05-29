@@ -72,6 +72,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
     int i = 0;
     const Operador *opt;
     char *label;
+    Operand *opd[3];
     // reads s until EOL
     while (s[i] != '\0' && s[i] != '\n' ) {
         // reads word for word
@@ -99,6 +100,32 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         }
         // first word is an operator
         else label = NULL;
+        // READS OPERANDS
+        int opds;
+        // finds how many operands operator is supposed to have (TO-DO)
+
+        // reads them one by one
+        int k;
+        for (k = 0; k < opds; k++) {
+            i = read_word(s, aux, i);
+            // checks if number of operands is correct (TO DO)
+
+            // checks if operand is valid (TO DO)
+
+            // does something with operands
+
+        }
+        // inserts OP_NONES, if any
+        while (k < 3) {
+            opd[k] = emalloc(sizeof(Operand));
+            opd[k]->type = OP_NONE;
+            k++
+        }
+        // saves instruction in instruction list (TO DO)
+
+        // goes to the start of next instruction, if any
+        while (isspace(s[i])) i++;
+        if (s[i] == ';') i++;
     }
-	return 0;
+	return 1;
 }
