@@ -11,7 +11,14 @@
     Finds error position in a string
 */
 int get_error_position(const char *errptr, Buffer *b) {
-    return 0;
+    int i, j;
+    // goes through buffer char by char
+    for (i = 0; i < b->i; i++) {
+        // compares in search for error
+        for (j = 0; errptr[j] == b->data[i+j] && errptr[j] != '\0' && errptr[j] != '\n'; j++);
+        if (errptr[j] == '\0' || errptr[j] == '\n') break;
+    }
+    return i;
 }
 
 /*
@@ -89,46 +96,6 @@ void print_instruction(Instruction instr) {
     }
 }
 
-/*
-  Reads a line in search for assignment operador IS
-  If not found, returns 0;
-  If found, tries to register it in the symbol table.
-  If value was already assigned, prints error message and returns 0.
-  Else, registers it and returns 1;
-*/
-int assignment_function(char *s, int i) {
-    int i = 0;
-    Buffer *b = buffer_create();
-    // Ignores spaces
-    while (isspace(s[i])) i++;
-    // Stops if first word is comment
-    if (s[i] == '*') return 0;
-    // Scans in search for IS
-    while (s[i] != '\0' && s[i] != '\n' && s[i] == 'I')
-        if (!isspace(s[i]) buffer_push_back (b, s[i++]);
-    // acabou a linha sem achar
-    if (s[i] == '\0' || s[i] == '\n') return 0;
-    // achou o IS, a partir de agora vai ler espaços e o valor
-    else if (s[i++] == 'S') {
-        InsertionResult res = stable_insert(st, b);
-        if (res.new == 0) {
-            fprintf(stderr, "line     = %s\n", b->data);
-            fprintf(stderr, "Invalid assignment: %s is already assigned.\n", label);
-            return 0;
-        }
-        else {
-            buffer_reset(b);
-            while (s[i] != '\0' && s[i] != '\n' && !isspace(s[i]))
-                buffer_push_back (b, s[i++]);
-            // AQUI FALTA TRANSFORMAR PARA TIPO DO OPERANDO
-            OperandValue val = b;
-            res->data = val;
-            // AQUI VEM CHAMADA PARA PRINT INSTRUCTION
-        }
-    }
-    return 1;
-}
-
 int main(int argc, char* argv) {
     if (argc != 2) die("Invalid argument.\n");
     // config for error.c
@@ -151,8 +118,18 @@ int main(int argc, char* argv) {
         // inserindo o par correspondente na alias_table. Se já foi associado, produzir mensagem de erro.
         if (assignment_function()) continue;
         // if parse was successful, prints line and instr content
-        else if (parse (b->data, st, &instr, &errptr)) {
+        if (parse (b->data, st, &instr, &errptr)) {
             if (b->data[0] != '*') printf ("line     = %s\n", b->data);
+            // caso IS: armazena na ST
+            else if (instr->op.opcode == -1) {
+                InsertionResult res = stable_insert(st, instr->opds[0]);
+                if (res.new == 0) {
+                    fprintf(stderr, "line     = %s\n", b->data);
+                    fprintf(stderr, "Invalid assignment: %s is already assigned.\n", label);
+                }
+                else res->data = instr->opds[1];
+            }
+            // printa as instruções
             while (instr) {
                 print_instruction(instr);
                 instr = instr->next;
