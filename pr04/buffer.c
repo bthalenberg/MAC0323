@@ -1,79 +1,52 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include "buffer.h"
-#include "error.h"
+#include <stdio.h>
+#include <string.h>
 
 /*
-  Create and return a new and empty buffer.
+  Create and return a new buffer that holds member elements of size
+  member_size.
 */
-Buffer *buffer_create() {
-    
-    Buffer *buf;
-    buf = emalloc(sizeof(Buffer));
-    
-    buf->data = emalloc(1024);
-    buf->n = 1024;
-    buf->i = 0; 
-    
-    return(buf);
+Buffer *buffer_create(size_t member_size){
+	Buffer *B = malloc(sizeof(Buffer));
+	B->data = malloc(member_size * sizeof(char));
+	B->member_size = member_size;
+	B->buffer_size = 1;
+	B->p = 0;
+	return B;
 }
 
 /*
   Destroy a buffer.
 */
-void buffer_destroy(Buffer *B) {
-    
-    free(B->data);
-    B->data = NULL;
-    
-    free(B);
-    B = NULL;
+void buffer_destroy(Buffer *B){
+	free (B->data);
+	B->data = NULL;
+	free (B);
+	B = NULL;
 }
 
 /*
   Reset buffer, eliminating contents.
 */
-void buffer_reset(Buffer *B) {
-
-    while (B->i > 0) {
-        
-        B->data[B->i] = 0;
-        B->i--;
-    }
-
+void buffer_reset(Buffer *B){
+	free(B->data);
+	B->data = malloc(B->member_size * sizeof(char));
+	B->buffer_size = 1;
+	B->p = 0;
 }
 
 /*
-  Add a character c to the end of the buffer.
+  Return a valid pointer to the first free position of the
+  buffer. This means that, if the space allocated is not enough, then
+  the buffer size is increased and the contents are copied.
 */
-void buffer_push_back(Buffer *B, char c) {
+void *buffer_push_back(Buffer *B){
 
-    int j;
-    Buffer *new_buf;
-    
-    //Realloc the buffer if necessary.
-    if (B->i == B->n) {
-        new_buf = emalloc(sizeof(Buffer));
-        new_buf->data = emalloc(2*B->n);
+	if (B->p < B->buffer_size) return (B->data + B->p);
 
-        for (j = 0 ; j < B->i; j++)
-            new_buf->data[j] = B->data[j];
-
-        free(B->data);
-        B->data = new_buf->data;
-        B->i = B->n;
-        B->n  *= 2;
-        
-        free(new_buf->data);
-        new_buf->data = NULL;
-        
-        free(new_buf);
-        new_buf = NULL;
-    }
-
-    B->data[B->i] = c;
-    B->i++;
+	B->data = realloc(B->data, 2 * B->member_size * sizeof(char));
+    B->member_size *= 2;
+	return (B->data + B->p);
 }
 
 /*
@@ -81,46 +54,26 @@ void buffer_push_back(Buffer *B, char c) {
   end-of-file) from the input file and places it into the given
   buffer, including the newline character if it is present. The buffer
   is resetted before the line is read.
-
   Returns the number of characters read; in particular, returns ZERO
   if end-of-file is reached before any characters are read.
 */
-int read_line(FILE *input, Buffer *B) {
-
-    int c, word;
-
-    word = 0;
-    buffer_reset(B);
-
-    while ((c = fgetc(input)) != EOF && c != 10) {
-        
-        if (isspace (c) && word) {
-            buffer_push_back(B, ((char)c));
-            word = 0;
+int read_line(FILE *input, Buffer *B){
+	buffer_reset(B);
+    int whiteCount = 1;
+    char c;
+	do {
+        c = (char) fgetc(input);
+        if (c == ' ' || c == '\t') whiteCount++;
+        else whiteCount = 0;
+        if (c == '\n' || c == EOF) {
+            if (B->p > 0 && B->data[B->p-1] == ' ') B->p--;
         }
-
-        else if (!isspace (c)) {
-            word++;
-            buffer_push_back(B, ((char)c));
+        if (whiteCount <= 1) {
+    		buffer_push_char(B, c);
+    		B->p++;
+            B->buffer_size++;
         }
-    }
-
-
-    //Explit in cases '\n' or EOF.
-    if (c == 10) {
-        
-        if (B->i && isspace (B->data[B->i - 1])) {
-            B->i--;
-        }
-        
-        buffer_push_back(B, ((char)c));
-    }
-    
-    else {
-        
-        if (isspace (B->data[B->i - 1]))
-            B->i--;
-    }
-    
-    return B->i; 
+	} while (c != '\n' && c != EOF);
+    if (B->data[0] == EOF) return 0;
+	return B->p;
 }
