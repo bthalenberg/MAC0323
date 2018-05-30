@@ -130,16 +130,22 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         // first word is an operator
         else label = NULL;
         // finds how many operands operator is supposed to have (TO-DO)
-        int opds = number_of_operands(opt);
+        int opdNumber = number_of_operands(opt);
         // reads them one by one
         int k;
-        for (k = 0; k < opds; k++) {
+        for (k = 0; k < opdNumber; k++) {
             i = read_word(s, aux, i);
             // validates operand
             //Check if operand is on Alias Table
             data = stable_find(alias_table, aux->data);
             //if operand is alias
+            if (data != NULL) {
+                (*instr)->opds[opdNumber] = data->opd;
+            }    
             //if operand is label
+            else if (((*instr)->op->opd_types[opdNumber]) == LABEL){
+                (*instr)->opds[opdNumber] = operand_create_label(aux->data);
+            }  
             //if operand is register
             //if operand is string
             //if operand is number
@@ -157,7 +163,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             k++
         }
         // saves instruction in instruction list (TO FIX)
-        Instruction *new = instr_create(label, opt, opds);
+        Instruction *new = instr_create(label, opt, opdNumber);
         // traverse linked list received (**instr) and adds it to end
 
         // goes to the start of next instruction, if any
