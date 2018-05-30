@@ -57,7 +57,7 @@ int validate_label(Buffer *l, const char *s, const char **errptr) {
     // not a valid label, error contains index with invalid char
     if (error != -1) {
         set_error_msg("expected label or operator\n");
-        if (errptr) *errptr = &s[ind - (l->i- 1 ) + aux];
+        if (errptr) *errptr = &s[ind - (l->p- 1 ) + aux];
         return 0;
     }
     return 1;
@@ -95,7 +95,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         // reads word for word
 	    i = read_word(s, aux, i);
         // if there was no word, line is empty
-        if (!aux->i) return 1;
+        if (!aux->p) return 1;
         // is the word an operator?
         opt = optable_find(aux->data);
         // not an operator. first word should be label or operator.
@@ -111,7 +111,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             // check if valid
             if (!opt) {
                 set_error_msg("expected operator\n");
-                if (errptr) *errpt = &s[i - (aux->i - 1)];
+                if (errptr) *errpt = &s[i - (aux->p - 1)];
                 return 0;
             }
         }
