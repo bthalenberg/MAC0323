@@ -37,13 +37,13 @@ static int read_word(const char *s, Buffer *b, int i) {
 int validate_label(Buffer *l, const char *s, const char **errptr) {
     int error = -1;
     // check if first char is valid
-    if (!((l->data[0] >= 'A' && l->data[0] <= 'Z') || (l->data[0] >= 'a' && l->data[0] <= 'z') || l->data[0] == '_'))
+    if (!(isalpha(l->data[0])) || l->data[0] == ' ')
        error = 0;
     // goes through string trying to find error
     else {
         int i = 1;
         while (l->data[i] != '\0' && l->data[i] != '\n') {
-            if (!((l->data[i] >= 'A' && l->data[i] <= 'Z') || (l->data[i] >= 'a' && l->data[i] <= 'z') || l->data[i] == '_' || (l->data[i] >= '0' && l->data[i] <= '9')))
+            if (!(isalnum(l->data[i]) || l->data[i] == '_' ||))
                error = i;
             i++;
         }
