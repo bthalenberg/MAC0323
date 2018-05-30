@@ -34,7 +34,7 @@ static int read_word(const char *s, Buffer *b, int i) {
     If l is a label, saves it in the ST and returns 1;
     Else, sets error  message and returns 0;
 */
-int validate_label(Buffer *l, const char *s, const char **errptr) {
+static int validate_label(Buffer *l, const char *s, const char **errptr) {
     int error = -1;
     // check if first char is valid
     if (!(isalpha(l->data[0])) || l->data[0] == ' ')
@@ -69,7 +69,7 @@ int validate_label(Buffer *l, const char *s, const char **errptr) {
         *errptr = l->data;
         return 0;
     }
-    
+
     return 1;
 }
 
@@ -77,7 +77,7 @@ int validate_label(Buffer *l, const char *s, const char **errptr) {
     Finds out number of arguments operator is supposed to have
 */
 
-int number_of_operands (const Operator *opt) {
+static int number_of_operands (const Operator *opt) {
     int num = 0;
     for (int i = 0; i < 3; i++)
         if (opt->opd_types[i] != OP_NONE) num++;
