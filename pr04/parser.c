@@ -48,18 +48,28 @@ int validate_label(Buffer *l, const char *s, const char **errptr) {
             i++;
         }
     }
-    //Checks if size is valid
-    if (l->buffer_size >= 16) {
-        set_error_msg("invalid label");
-        *errptr = l->data;
-        return 0;
-    }
+
     // not a valid label, error contains index with invalid char
     if (error != -1) {
         set_error_msg("expected label or operator\n");
         if (errptr) *errptr = &s[ind - (l->p- 1 ) + aux];
         return 0;
     }
+
+    //Checks if size is valid
+    if (l->buffer_size >= 16 || l->buffer_size == 0) {
+        set_error_msg("invalid label size");
+        *errptr = l->data;
+        return 0;
+    }
+
+    //Check if label already exists
+    if (stable_find(alias_table, l->data) != NULL) {
+        set_error_msg("label already exists");
+        *errptr = l->data;
+        return 0;
+    }
+    
     return 1;
 }
 
@@ -90,6 +100,8 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
     const Operador *opt;
     char *label;
     Operand *opd[3];
+    EntryData *data;
+
     // reads s until EOL
     while (s[i] != '\0' && s[i] != '\n' ) {
         // reads word for word
@@ -124,6 +136,14 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         for (k = 0; k < opds; k++) {
             i = read_word(s, aux, i);
             // validates operand
+            //Check if operand is on Alias Table
+            data = stable_find(alias_table, aux->data);
+            //if operand is alias
+            //if operand is label
+            //if operand is register
+            //if operand is string
+            //if operand is number
+
 
             // adds it to opd array
 
