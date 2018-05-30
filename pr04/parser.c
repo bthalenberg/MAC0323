@@ -48,6 +48,12 @@ int validate_label(Buffer *l, const char *s, const char **errptr) {
             i++;
         }
     }
+    //Checks if size is valid
+    if (l->buffer_size >= 16) {
+        set_error_msg("invalid label");
+        *errptr = l->data;
+        return 0;
+    }
     // not a valid label, error contains index with invalid char
     if (error != -1) {
         set_error_msg("expected label or operator\n");
