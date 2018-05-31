@@ -34,7 +34,7 @@ static int read_word(const char *s, Buffer *b, int i) {
     If l is a label, saves it in the ST and returns 1;
     Else, sets error  message and returns 0;
 */
-static int validate_label(Buffer *l, const char *s, const char **errptr) {
+static int validate_label(Buffer *l, const char *s, const char **errptr, SymbolTable alias_table) {
     int error = -1;
     // check if first char is valid
     if (!(isalpha(l->data[0])) || l->data[0] == ' ')
@@ -43,7 +43,7 @@ static int validate_label(Buffer *l, const char *s, const char **errptr) {
     else {
         int i = 1;
         while (l->data[i] != '\0' && l->data[i] != '\n') {
-            if (!(isalnum(l->data[i]) || l->data[i] == '_' ||))
+            if (!(isalnum(l->data[i]) || l->data[i] == '_'))
                error = i;
             i++;
         }
@@ -97,7 +97,7 @@ static int number_of_operands (const Operator *opt) {
 int parse(const char *s, SymbolTable alias_table, Instruction **instr, const char **errptr) {
     Buffer *aux = buffer_create();
     int i = 0;
-    const Operador *opt;
+    const Operator *opt;
     char *label;
     Operand *opd[3];
     EntryData *data;
@@ -113,7 +113,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         // not an operator. first word should be label or operator.
         if (!opt) {
             // validates label
-            if (!validate_label(aux, s, errptr)) return 0;
+            if (!validate_label(aux, s, errptr, alias_table)) return 0;
             // if it is a label, saves it
             label = emalloc(sizeof(aux->data));
             strcpy(label, aux->data);
@@ -123,7 +123,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             // check if valid
             if (!opt) {
                 set_error_msg("expected operator\n");
-                if (errptr) *errpt = &s[i - (aux->p - 1)];
+                if (errptr) *errptr = &s[i - (aux->p - 1)];
                 return 0;
             }
         }
@@ -147,9 +147,9 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
                 (*instr)->opds[k] = operand_create_label(aux->data);
             }  
             //if operand is register
-            else if (((*instr)->op->opd_types[opnum]) == REGISTER){
+            else if (((*instr)->op->opd_types[k]) == REGISTER){
                 //ignorar o 1o char, que sera o $
-                (*instr)->opds[k] = operand_create_register(atoi(aux->data[1]));
+                (*instr)->opds[k] = operand_create_register(atoi((int *)aux->data[1]));
             }
             //if operand is string
             else if (((*instr)->op->opd_types[k]) == STRING) {
@@ -175,7 +175,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         while (k < 3) {
             opd[k] = emalloc(sizeof(Operand));
             opd[k]->type = OP_NONE;
-            k++
+            k++;
         }
         // saves instruction in instruction list (TO FIX)
         Instruction *new = instr_create(label, opt, opdNumber);
