@@ -95,7 +95,7 @@ static int number_of_operands (const Operator *opt) {
   where the error was found.
 */
 int parse(const char *s, SymbolTable alias_table, Instruction **instr, const char **errptr) {
-	Buffer *aux = buffer_create();
+    Buffer *aux = buffer_create();
     int i = 0;
     const Operador *opt;
     char *label;
@@ -105,7 +105,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
     // reads s until EOL
     while (s[i] != '\0' && s[i] != '\n' ) {
         // reads word for word
-	    i = read_word(s, aux, i);
+        i = read_word(s, aux, i);
         // if there was no word, line is empty
         if (!aux->p) return 1;
         // is the word an operator?
@@ -119,7 +119,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             strcpy(label, aux->data);
             // see if next word is operator
             i = read_word(s, aux, i);
-    		opt = optable_find(aux->data);
+            opt = optable_find(aux->data);
             // check if valid
             if (!opt) {
                 set_error_msg("expected operator\n");
@@ -148,7 +148,8 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             }  
             //if operand is register
             else if (((*instr)->op->opd_types[opnum]) == REGISTER){
-                
+                //ignorar o 1o char, que sera o $
+                (*instr)->opds[k] = operand_create_register(atoi(aux->data[1]));
             }
             //if operand is string
             else if (((*instr)->op->opd_types[k]) == STRING) {
@@ -184,5 +185,5 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         while (isspace(s[i])) i++;
         if (s[i] == ';') i++;
     }
-	return 1;
+    return 1;
 }
