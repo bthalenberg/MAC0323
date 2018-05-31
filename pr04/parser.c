@@ -34,7 +34,7 @@ static int read_word(const char *s, Buffer *b, int i) {
     If l is a label, saves it in the ST and returns 1;
     Else, sets error  message and returns 0;
 */
-static int validate_label(Buffer *l, const char *s, const char **errptr, SymbolTable alias_table) {
+static int validate_label(Buffer *l, const char *s, const char **errptr, SymbolTable alias_table, int ind) {
     int error = -1;
     // check if first char is valid
     if (!(isalpha(l->data[0])) || l->data[0] == ' ')
@@ -52,7 +52,7 @@ static int validate_label(Buffer *l, const char *s, const char **errptr, SymbolT
     // not a valid label, error contains index with invalid char
     if (error != -1) {
         set_error_msg("expected label or operator\n");
-        if (errptr) *errptr = &s[ind - (l->p- 1 ) + aux];
+        if (errptr) *errptr = &s[ind - (l->p-1 ) + error];
         return 0;
     }
 
@@ -113,7 +113,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         // not an operator. first word should be label or operator.
         if (!opt) {
             // validates label
-            if (!validate_label(aux, s, errptr, alias_table)) return 0;
+            if (!validate_label(aux, s, errptr, alias_table, i)) return 0;
             // if it is a label, saves it
             label = emalloc(sizeof(aux->data));
             strcpy(label, aux->data);
@@ -141,11 +141,11 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             //if operand is alias
             if (data != NULL) {
                 (*instr)->opds[k] = data->opd;
-            }    
+            }
             //if operand is label
             else if (((*instr)->op->opd_types[k]) == LABEL){
                 (*instr)->opds[k] = operand_create_label(aux->data);
-            }  
+            }
             //if operand is register
             else if (((*instr)->op->opd_types[k]) == REGISTER){
                 //ignorar o 1o char, que sera o $
@@ -158,7 +158,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             }
             //if operand is number
             else {
-            }    
+            }
 
         }
         // checks if number of operands is correct (TO DO)
@@ -167,8 +167,8 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
                 set_error_msg("missing operand");
                 *errptr = "NULL";
                 return 0;
-            }    
-        }        
+            }
+        }
 
 
         // inserts OP_NONES, if any
