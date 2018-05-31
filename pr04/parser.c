@@ -147,13 +147,17 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
                 (*instr)->opds[k] = operand_create_label(aux->data);
             }  
             //if operand is register
+            else if (((*instr)->op->opd_types[opnum]) == REGISTER){
+                
+            }
             //if operand is string
             else if (((*instr)->op->opd_types[k]) == STRING) {
 
                 (*instr)->opds[k] = operand_create_string(aux->data);
             }
             //if operand is number
-
+            else {
+            }    
 
         }
         // checks if number of operands is correct (TO DO)
