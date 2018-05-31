@@ -13,7 +13,7 @@
 int get_error_position(const char *errptr, Buffer *b) {
     int i, j;
     // goes through buffer char by char
-    for (i = 0; i < b->i; i++) {
+    for (i = 0; i < b->p; i++) {
         // compares in search for error
         for (j = 0; errptr[j] == b->data[i+j] && errptr[j] != '\0' && errptr[j] != '\n'; j++);
         if (errptr[j] == '\0' || errptr[j] == '\n') break;
@@ -28,7 +28,7 @@ void print_error(const char *errptr, Buffer *b, int line) {
     const char *error_msg;
     int pos;
     error_msg = get_error_msg();
-    pos = error_position(errptr, b);
+    pos = get_error_position(errptr, b);
     // prints line with error
     printf ("line %d: %s\n", line, b->data);
     // blank spaces to align error msg
@@ -96,18 +96,18 @@ void print_instruction(Instruction instr) {
     }
 }
 
-int main(int argc, char* argv) {
+int main(int argc, char** argv) {
     if (argc != 2) die("Invalid argument.\n");
     // config for error.c
     set_prog_name("parse_test");
 
-    SymbolTable *st = stable_create();
-    Buffer *b = buffer_create();
+    SymbolTable st = stable_create();
+    Buffer *b = buffer_create(100);
     const char *errptr;
     Instruction instr;
 
     FILE *f = fopen(argv[1], "r");
-    if (f == null) die("Invalid file.\n")
+    if (f == NULL) die("Invalid file.\n");
     int cur, len;
     cur = len = 1;
     // Reads text until EOF
