@@ -95,7 +95,7 @@ static int number_of_operands (const Operator *opt) {
   where the error was found.
 */
 int parse(const char *s, SymbolTable alias_table, Instruction **instr, const char **errptr) {
-    Buffer *aux = buffer_create();
+    Buffer *aux = buffer_create(100);
     int i = 0;
     const Operator *opt;
     char *label;
@@ -149,7 +149,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             //if operand is register
             else if (((*instr)->op->opd_types[k]) == REGISTER){
                 //ignorar o 1o char, que sera o $
-                (*instr)->opds[k] = operand_create_register(atoi((int *)aux->data[1]));
+                (*instr)->opds[k] = operand_create_register(aux->data[1]);
             }
             //if operand is string
             else if (((*instr)->op->opd_types[k]) == STRING) {
