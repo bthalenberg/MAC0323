@@ -140,21 +140,31 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             data = stable_find(alias_table, aux->data);
             //if operand is alias
             if (data != NULL) {
-                (*instr)->opds[opdNumber] = data->opd;
+                (*instr)->opds[k] = data->opd;
             }    
             //if operand is label
-            else if (((*instr)->op->opd_types[opdNumber]) == LABEL){
-                (*instr)->opds[opdNumber] = operand_create_label(aux->data);
+            else if (((*instr)->op->opd_types[k]) == LABEL){
+                (*instr)->opds[k] = operand_create_label(aux->data);
             }  
             //if operand is register
             //if operand is string
+            else if (((*instr)->op->opd_types[k]) == STRING) {
+
+                (*instr)->opds[k] = operand_create_string(aux->data);
+            }
             //if operand is number
 
 
-            // adds it to opd array
-
         }
         // checks if number of operands is correct (TO DO)
+        for (k = 0; k < opdNumber; k++) {
+            if((*instr)->opds[k] == NULL){
+                set_error_msg("missing operand");
+                *errptr = "NULL";
+                return 0;
+            }    
+        }        
+
 
         // inserts OP_NONES, if any
         while (k < 3) {
