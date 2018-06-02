@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main ()
+/*int main ()
 {
   char s[] = "start   ADD   a,a,1";
   char *token;
@@ -20,3 +20,4 @@ int main ()
 
   return 0;
 }
+*/

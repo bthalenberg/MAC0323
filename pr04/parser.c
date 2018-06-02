@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include "error.h"
 #include "stable.h"
@@ -25,7 +26,8 @@ static int read_word(const char *s, Buffer *b, int i) {
     if (s[i] == '*') return i;
     // reads until EOL or space
     while (s[i] != '\0' && s[i] != '\n' && !isspace(s[i]))
-        buffer_push_back(b, s[i++]);
+        buffer_push_char(b, s[i++]);
+
     return i;
 }
 
@@ -161,15 +163,19 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             }
 
         }
-        // checks if number of operands is correct (TO DO)
-        for (k = 0; k < opdNumber; k++) {
-            if((*instr)->opds[k] == NULL){
+        // checks if number of operands is correct
+        for (k = 0; k < 3; k++) {
+            if(k < opdNumber && (*instr)->opds[k] == NULL){
                 set_error_msg("missing operand");
                 *errptr = "NULL";
                 return 0;
             }
+            if(k >= opdNumber && (*instr)->opds[k] != NULL){
+                set_error_msg("too many operands");
+                *errptr = "NULL";
+                return 0;
+            }
         }
-
 
         // inserts OP_NONES, if any
         while (k < 3) {
@@ -178,7 +184,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             k++;
         }
         // saves instruction in instruction list (TO FIX)
-        Instruction *new = instr_create(label, opt, opdNumber);
+        //Instruction *new = instr_create(label, opt, opdNumber);
         // traverse linked list received (**instr) and adds it to end
 
         // goes to the start of next instruction, if any

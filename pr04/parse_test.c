@@ -47,7 +47,6 @@ char *get_operand_string (OperandType type) {
     if (type == NUMBER_TYPE) return operand = "Number";
     if (type == STRING) return operand = "String";
     return operand;
-
 }
 
 /*
@@ -74,25 +73,25 @@ void print_instruction(Instruction instr) {
        printf ("operand  = %s(\"%s\")\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.label);
     // CASE ONE OPERAND not a label
     else if (instr.opds[1]->type == 0 && instr.opds[2]->type == 0) {
-        printf ("operand  = %s(%d)\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value);
+        printf ("operand  = %s(%lld)\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.num);
     }
 
     // CASE TWO OPERANDS, one being a label
     else if (instr.opds[2]->type == 0 && instr.opds[1]->type == LABEL) {
-       printf ("operands = %s(%d)", get_operand_string(instr.opds[0]->type), instr.opds[0]->value);
+       printf ("operands = %s(%lld)", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.num);
        printf (", %s(\"%s\")\n", get_operand_string(instr.opds[1]->type), instr.opds[1]->value.label);
     }
    // CASE TWO OPERANDS, none a label
     else if (instr.opds[2]->type == 0) {
-       printf ("operands = %s(%d)", get_operand_string(instr.opds[0]->type), instr.opds[0]->value);
-       printf (", %s(%d)\n", get_operand_string(instr.opds[1]->type), instr.opds[1]->value);
+       printf ("operands = %s(%lld)", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.num);
+       printf (", %s(%lld)\n", get_operand_string(instr.opds[1]->type), instr.opds[1]->value.num);
     }
 
     // CASE THREE OPERANDS
     else {
-       printf ("operands = %s(%d)", get_operand_string(instr.opds[0]->type), instr.opds[0]->value);
-       printf (", %s(%d)", get_operand_string(instr.opds[1]->type), instr.opds[1]->value);
-       printf (", %s(%d)\n", get_operand_string(instr.opds[2]->type), instr.opds[2]->value);
+       printf ("operands = %s(%lld)", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.num);
+       printf (", %s(%lld)", get_operand_string(instr.opds[1]->type), instr.opds[1]->value.num);
+       printf (", %s(%lld)\n", get_operand_string(instr.opds[2]->type), instr.opds[2]->value.num);
     }
 }
 
@@ -104,7 +103,7 @@ int main(int argc, char** argv) {
     SymbolTable st = stable_create();
     Buffer *b = buffer_create(100);
     const char *errptr;
-    Instruction instr;
+    Instruction* instr;
 
     FILE *f = fopen(argv[1], "r");
     if (f == NULL) die("Invalid file.\n");
@@ -118,23 +117,24 @@ int main(int argc, char** argv) {
         if (parse (b->data, st, &instr, &errptr)) {
             if (b->data[0] != '*') printf ("line     = %s\n", b->data);
             // caso IS: armazena na ST
-            else if (instr.op->opcode == -1) {
-                InsertionResult res = stable_insert(st, instr.opds[0]);
+            else if (instr->op->opcode == -1) {
+                InsertionResult res = stable_insert(st, instr->opds[0]->value.label);
                 if (res.new == 0) {
                     fprintf(stderr, "line     = %s\n", b->data);
-                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", label);
+                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->opds[0]->value.label);
                 }
                 else {
-                    res.data.opd = emalloc(sizeof(Operand));
+                    res.data->opd = emalloc(sizeof(Operand));
                     res.data->opd->type = REGISTER;
-                    res.data->opd->value.reg = opds[1]->value.reg;
+                    res.data->opd->value.reg = instr->opds[1]->value.reg;
                 }
 
             }
+
             // printa as instruções
-            while (instr) {
-                print_instruction(instr);
-                instr = instr.next;
+            while (instr != NULL ) {
+                print_instruction(*instr);
+                instr = instr->next;
             }
         }
         // if an error occurred, prints error message to stderr with line
