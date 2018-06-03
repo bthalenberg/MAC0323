@@ -120,6 +120,21 @@ static int read_operand(const char *s, Buffer *b, int i) {
     return i;
 }
 
+long long to_decimal(Buffer *b){
+    long long resp = 0;
+    int digit;
+    for(int i = 1; i < (int)b->buffer_size; i++){
+        resp = resp * 16;
+        if( b->data[i]>='0' && b->data[i]<='9')
+            digit = b->data[i] - '0';
+        else 
+            digit = b->data[i] + 10 - (b->data[i]>='A' && b->data[i]<='Z')?'a':'A';
+        resp = resp + digit;
+    }
+    return resp;
+}
+
+
 /*
     Process operands
 */
@@ -141,8 +156,10 @@ static void process_operand(Buffer *b, SymbolTable alias_table, Instruction **in
         (*instr)->opds[k] = operand_create_string(b->data);
     //if operand is number
     else {
-        //needs to be properly done
-        (*instr)->opds[k] = operand_create_number((long long)b->data);
+        //if operand is hexadecimal number
+        if(b->data[0]=='#')(*instr)->opds[k] = operand_create_number(to_decimal(b));
+        //if operand is decimal number
+        (*instr)->opds[k] = operand_create_number((long long)(b->data));
     }
 }
 
