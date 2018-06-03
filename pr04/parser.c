@@ -190,7 +190,7 @@ static Operand *create_operand(Buffer *b, SymbolTable alias_table, const char **
 /*
     Process operands
 */
-static void process_operand(Buffer *b, SymbolTable alias_table, int k, const char **errptr,
+static Operand *process_operand(Buffer *b, SymbolTable alias_table, int k, const char **errptr,
                             const Operator *opt, const char *s) {
     Operand *opd = create_operand(b, alias_table, errptr, k);
     if (opd && opd->type & NUMBER_TYPE) {
@@ -208,11 +208,12 @@ static void process_operand(Buffer *b, SymbolTable alias_table, int k, const cha
             if (num > 255)
                 opd = NULL;
     }
-
     // Checks if the type of operand_read and the expected_type coincides
-    if (opd && opd->type & opt->opd_types[k])
-    set_error_msg ("invalid operand");
-    if (errptr) *errptr = &s[k - (b->p - 1)];
+    if (opd && opd->type & opt->opd_types[k]) {
+        set_error_msg ("invalid operand");
+        if (errptr) *errptr = &s[k - (b->p - 1)];
+    }
+    return opd;
 }
 
 /*
@@ -260,7 +261,9 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             label = emalloc(sizeof(aux->data));
             strcpy(label, aux->data);
             // see if next word is operator
-            i = read_word(s, aux, i);
+            i = read_word(s, aux, i
+            // ERRO DE ADD
+            printf("%d %s\n", i, aux->data);
             opt = optable_find(aux->data);
             // check if valid
             if (!opt) {
@@ -283,7 +286,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
                 return 0;
             }
             // stores and checks operands
-            process_operand(aux, alias_table, k, errptr, opt, s);
+            opd[k] = process_operand(aux, alias_table, k, errptr, opt, s);
         }
         // inserts OP_NONES, if any
         while (k < 3) {
