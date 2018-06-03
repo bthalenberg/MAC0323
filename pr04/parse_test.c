@@ -13,7 +13,7 @@
 int get_error_position(const char *errptr, Buffer *b) {
     int i, j;
     // goes through buffer char by char
-    for (i = 0; i < b->p; i++) {
+    for (i = 0; i < (int)b->p; i++) {
         // compares in search for error
         for (j = 0; errptr[j] == b->data[i+j] && errptr[j] != '\0' && errptr[j] != '\n'; j++);
         if (errptr[j] == '\0' || errptr[j] == '\n') break;
