@@ -261,7 +261,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             label = emalloc(sizeof(aux->data));
             strcpy(label, aux->data);
             // see if next word is operator
-            i = read_word(s, aux, i
+            i = read_word(s, aux, i);
             // ERRO DE ADD
             printf("%d %s\n", i, aux->data);
             opt = optable_find(aux->data);

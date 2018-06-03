@@ -31,9 +31,9 @@ void print_error(const char *errptr, Buffer *b, int line) {
     pos = get_error_position(errptr, b);
     // prints line with error
     printf ("line %d: ", line);
-    for(int i = 0; i < b->p && b->data[i] != '*'; i++)
+    for(unsigned int i = 0; i < b->p && b->data[i] != '*'; i++)
                 printf ("%c", b->data[i]);
-   
+
     // blank spaces to align error msg
     for (int i = 0; i < pos + 6; i++)   printf(" ");
     // pointer and error msg
@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
         if (parse (b->data, st, &instr, &errptr)) {
             if (b->data[0] != '*'){
                 printf ("line     = ");
-                for(int i = 0; i < b->p && b->data[i] != '*'; i++)
+                for (unsigned int i = 0; i < b->p && b->data[i] != '*'; i++)
                 printf ("%c", b->data[i]);
                 // caso IS: armazena na ST
                 if (instr->op->opcode == -1) {
@@ -132,7 +132,8 @@ int main(int argc, char** argv) {
                     else {
                         res.data->opd = emalloc(sizeof(Operand));
                         res.data->opd->type = REGISTER;
-                        res.data->opd->value.reg = instr->opds[1]->value.reg;
+                        res.data->opd->value.reg = instr->opds[0]->value.reg;
+                        //printf("%d\n" instr->opds[0]->value.reg);
                     }
                 }
                 // printa as instruções
