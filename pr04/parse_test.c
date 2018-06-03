@@ -41,18 +41,6 @@ void print_error(const char *errptr, Buffer *b, int line) {
 }
 
 /*
-   Returns string containing type of operand for output formatting
-*/
-char *get_operand_string (OperandType type) {
-    char *operand = " ";
-    if (type == LABEL) return operand = "Label";
-    if (type == REGISTER) return operand = "Register";
-    if (type == NUMBER_TYPE) return operand = "Number";
-    if (type == STRING) return operand = "String";
-    return operand;
-}
-
-/*
     Prints instructions to StdOut
 */
 void print_instruction(Instruction instr) {
@@ -71,12 +59,12 @@ void print_instruction(Instruction instr) {
     int i = 0;
     while (instr.opds[i]->type != 0) {
         if (instr.opds[i]->type == STRING)
-            printf ("operand  = %s(%s)\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.str);
+            printf ("operand  = String(%s)\n", instr.opds[i]->value.str);
         if (instr.opds[i]->type == LABEL)
-            printf ("operand  = %s(\"%s\")\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.label);
+            printf ("operand  = Label(\"%s\")\n", instr.opds[i]->value.label);
         if (instr.opds[i]->type == REGISTER)
-            printf ("operand  = %s(%d)\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.reg);
-        else printf ("operand  = %s(%lld)\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.num);
+            printf ("operand  = Register(%d)\n",instr.opds[i]->value.reg);
+        else printf ("operand  = Number(%lld)\n", instr.opds[i]->value.num);
         i++;
     }
 }
