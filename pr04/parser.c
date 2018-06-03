@@ -40,13 +40,13 @@ static int validate_label(Buffer *l, const char *s, const char **errptr, SymbolT
     //Checks if size is valid
     if (l->buffer_size >= 16 || l->buffer_size == 0) {
         set_error_msg("invalid label size");
-        *errptr = l->data;
+        if (errptr)  *errptr = &s[ind - (l->p - 1)];
         return 0;
     }
     //Check if label already exists
     if (stable_find(alias_table, l->data) != NULL) {
         set_error_msg("label already exists");
-        *errptr = l->data;
+        if (errptr)  *errptr = &s[ind - (l->p - 1)];
         return 0;
     }
     // check if first char is valid
