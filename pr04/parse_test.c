@@ -57,6 +57,7 @@ char *get_operand_string (OperandType type) {
 */
 void print_instruction(Instruction instr) {
     // Print label
+
     if (instr.label) printf ("label    = \"%s\"\n", instr.label);
     else printf ("label    = n/a\n");
 
@@ -65,38 +66,18 @@ void print_instruction(Instruction instr) {
 
     // Print operands
     // CASE NO OPERANDS
-    if (instr.opds[0]->type == 0 && instr.opds[1]->type == 0 && instr.opds[2]->type == 0)
+    if (instr.opds[0]->type == 0)
        printf ("operand  = n/a\n");
-
-    // CASE ONE OPERAND of type string
-    if (instr.opds[0]->type == STRING)
-       printf ("operand  = %s(%s)\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.str);
-    // CASE ONE OPERAND of type label
-    else if (instr.opds[1]->type == 0 && instr.opds[2]->type == 0 && instr.opds[0]->type == LABEL)
-       printf ("operand  = %s(\"%s\")\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.label);
-    // CASE ONE OPERAND not a label
-    else if (instr.opds[1]->type == 0 && instr.opds[2]->type == 0) {
-        if (instr.opds[0]->type == REGISTER)
-            printf ("operand  = %s(%d)\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.reg);
-        else printf ("operand  = %s(%lld)\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.num);
-    }
-
-    // CASE TWO OPERANDS, one being a label
-    else if (instr.opds[2]->type == 0 && instr.opds[1]->type == LABEL) {
-       printf ("operands = %s(%lld)", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.num);
-       printf (", %s(\"%s\")\n", get_operand_string(instr.opds[1]->type), instr.opds[1]->value.label);
-    }
-   // CASE TWO OPERANDS, none a label
-    else if (instr.opds[2]->type == 0) {
-       printf ("operands = %s(%lld)", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.num);
-       printf (", %s(%lld)\n", get_operand_string(instr.opds[1]->type), instr.opds[1]->value.num);
-    }
-
-    // CASE THREE OPERANDS
-    else {
-       printf ("operands = %s(%lld)", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.num);
-       printf (", %s(%lld)", get_operand_string(instr.opds[1]->type), instr.opds[1]->value.num);
-       printf (", %s(%lld)\n", get_operand_string(instr.opds[2]->type), instr.opds[2]->value.num);
+    int i = 0;
+    while (instr.opds[i]->type != 0) {
+        if (instr.opds[i]->type == STRING)
+            printf ("operand  = %s(%s)\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.str);
+        if (instr.opds[i]->type == LABEL)
+            printf ("operand  = %s(\"%s\")\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.label);
+        if (instr.opds[i]->type == REGISTER)
+            printf ("operand  = %s(%d)\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.reg);
+        else printf("case4\n"); printf ("operand  = %s(%lld)\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.num);
+        i++;
     }
 }
 
@@ -122,8 +103,10 @@ int main(int argc, char** argv) {
         if (parse (b->data, st, &instr, &errptr)) {
             if (b->data[0] != '*'){
                 printf ("line     = ");
-                for (unsigned int i = 0; i < b->p && b->data[i] != '*'; i++)
+                unsigned int i;
+                for (i = 0; i < b->p && b->data[i] != '*'; i++)
                 printf ("%c", b->data[i]);
+                if (b->data[i] == '*') printf("\n");
                 // caso IS: armazena na ST
                 if (instr->op->opcode == -1) {
                     InsertionResult res = stable_insert(st, instr->label);
