@@ -13,7 +13,7 @@
 int get_error_position(const char *errptr, Buffer *b) {
     unsigned int i, j;
     // goes through buffer char by char
-    for (i = 0; i < (int)b->p; i++) {
+    for (i = 0; i < b->p; i++) {
         // compares in search for error
         for (j = 0; errptr[j] == b->data[i+j] && errptr[j] != '\0' && errptr[j] != '\n'; j++);
         if (errptr[j] == '\0' || errptr[j] == '\n') break;
@@ -123,20 +123,20 @@ int main(int argc, char** argv) {
                 for(int i = 0; i < b->p && b->data[i] != '*'; i++)
                 printf ("%c", b->data[i]);
                 // caso IS: armazena na ST
-                // if (instr->op->opcode == -1) {
-                //     printf("case 2\n");
-                //     InsertionResult res = stable_insert(st, instr->opds[0]->value.label);
-                //     if (res.new == 0) {
-                //         fprintf(stderr, "line     = %s\n", b->data);
-                //         fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->opds[0]->value.label);
-                //     }
-                //     else {
-                //         res.data->opd = emalloc(sizeof(Operand));
-                //         res.data->opd->type = REGISTER;
-                //         res.data->opd->value.reg = instr->opds[1]->value.reg;
-                //     }
-                //
-                // }
+                if (instr->op->opcode == -1) {
+                    printf("case 2\n");
+                    InsertionResult res = stable_insert(st, instr->opds[0]->value.label);
+                    if (res.new == 0) {
+                        fprintf(stderr, "line     = %s\n", b->data);
+                        fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->opds[0]->value.label);
+                    }
+                    else {
+                        res.data->opd = emalloc(sizeof(Operand));
+                        res.data->opd->type = REGISTER;
+                        res.data->opd->value.reg = instr->opds[1]->value.reg;
+                    }
+
+                }
                 // printa as instruções
                 while (instr != NULL ) {
                     print_instruction(*instr);
