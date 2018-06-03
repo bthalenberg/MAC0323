@@ -30,7 +30,10 @@ void print_error(const char *errptr, Buffer *b, int line) {
     error_msg = get_error_msg();
     pos = get_error_position(errptr, b);
     // prints line with error
-    printf ("line %d: %s\n", line, b->data);
+    printf ("line %d: ", line);
+    for(int i = 0; i < b->p && b->data[i] != '*'; i++)
+                printf ("%c", b->data[i]);
+   
     // blank spaces to align error msg
     for (int i = 0; i < pos + 6; i++)   printf(" ");
     // pointer and error msg
@@ -116,7 +119,9 @@ int main(int argc, char** argv) {
         // if parse was successful, prints line and instr content
         if (parse (b->data, st, &instr, &errptr)) {
             if (b->data[0] != '*'){
-                printf ("line     = %s", b->data);
+                printf ("line     = ");
+                for(int i = 0; i < b->p && b->data[i] != '*'; i++)
+                printf ("%c", b->data[i]);
                 // caso IS: armazena na ST
                 if (instr->op->opcode == -1) {
                     InsertionResult res = stable_insert(st, instr->label);
