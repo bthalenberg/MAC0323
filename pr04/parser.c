@@ -27,7 +27,6 @@ static int read_word(const char *s, Buffer *b, int i) {
     // reads until EOL or space
     while (s[i] != '\0' && s[i] != '\n' && !isspace(s[i]))
         buffer_push_char(b, s[i++]);
-
     return i;
 }
 
@@ -38,6 +37,18 @@ static int read_word(const char *s, Buffer *b, int i) {
 */
 static int validate_label(Buffer *l, const char *s, const char **errptr, SymbolTable alias_table, int ind) {
     int error = -1;
+    //Checks if size is valid
+    if (l->buffer_size >= 16 || l->buffer_size == 0) {
+        set_error_msg("invalid label size");
+        *errptr = l->data;
+        return 0;
+    }
+    //Check if label already exists
+    if (stable_find(alias_table, l->data) != NULL) {
+        set_error_msg("label already exists");
+        *errptr = l->data;
+        return 0;
+    }
     // check if first char is valid
     if (!(isalpha(l->data[0])) || l->data[0] == ' ')
        error = 0;
@@ -50,28 +61,12 @@ static int validate_label(Buffer *l, const char *s, const char **errptr, SymbolT
             i++;
         }
     }
-
     // not a valid label, error contains index with invalid char
     if (error != -1) {
         set_error_msg("expected label or operator\n");
         if (errptr) *errptr = &s[ind - (l->p-1 ) + error];
         return 0;
     }
-
-    //Checks if size is valid
-    if (l->buffer_size >= 16 || l->buffer_size == 0) {
-        set_error_msg("invalid label size");
-        *errptr = l->data;
-        return 0;
-    }
-
-    //Check if label already exists
-    if (stable_find(alias_table, l->data) != NULL) {
-        set_error_msg("label already exists");
-        *errptr = l->data;
-        return 0;
-    }
-
     return 1;
 }
 
@@ -84,6 +79,56 @@ static int number_of_operands (const Operator *opt) {
     for (int i = 0; i < 3; i++)
         if (opt->opd_types[i] != OP_NONE) num++;
     return num;
+}
+
+/*
+    Reads Operands in the right format
+*/
+static int read_operand(const char *s, Buffer *b, int i) {
+
+    buffer_reset (b);
+    while (isspace (s[i])) i++;
+
+    // Reads operand as string if it starts with '"'
+    if (s[i] == '"') {
+        buffer_push_back (b, s[i]);
+        i++;
+        while (s[i] != '"' && s[i] != '\n' && s[i] != '\0') {
+            buffer_push_back (b, s[i]);
+            i++;
+            if (s[i] == '\\') {
+                buffer_push_back (b, s[i]);
+                i++;
+                buffer_push_back (b, s[i]);
+            }
+        }
+        if (s[i] == '"') {
+            buffer_push_back (b, s[i]);
+            i++;
+        }
+        return i;
+    }
+
+    if (s[i] == ',' || isspace (s[i])) i++;
+    while (s[i] != ',' && !isspace (s[i]) && s[i] != '\0' && s[i] != ';' && s[i] != '*') {
+        buffer_push_back (b, s[i]);
+        i++;
+    }
+    return i;
+}
+
+/*
+    Inserts instruction in linked list
+*/
+Instruction *insert_instruction(Instruction *head, char *label, const Operator *opt, Operand *opds[3]) {
+
+    Instruction *new, *i, *ant;
+    new = instr_create(label, opt, opds);
+    // traverse list
+    for (i = head, ant = NULL; i; ant = i, i = i->next) ;
+    if (!ant) return new;
+    ant->next = new;
+    return head;
 }
 
 /*
@@ -103,6 +148,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
     char *label;
     Operand *opd[3];
     EntryData *data;
+    Instruction *instr;
 
     // reads s until EOL
     while (s[i] != '\0' && s[i] != '\n' ) {
@@ -131,55 +177,53 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         }
         // first word is an operator
         else label = NULL;
-        // finds how many operands operator is supposed to have (TO-DO)
+        // finds how many operands operator is supposed to have
         int opdNumber = number_of_operands(opt);
         // reads them one by one
         int k;
         for (k = 0; k < opdNumber; k++) {
-            i = read_word(s, aux, i);
-            // validates operand
+            i = read_operand(s, aux, i);
+            if (!aux->i) {
+                set_error_msg ("wrong number of operands");
+                if (errptr)  *errptr = &s[i - (aux->i - 1)];
+                return 0;
+            }
+            // stores and checks operands
             //Check if operand is on Alias Table
             data = stable_find(alias_table, aux->data);
             //if operand is alias
-            if (data != NULL) {
-                (*instr)->opds[k] = data->opd;
-            }
+            if (data != NULL) (*instr)->opds[k] = data->opd;
             //if operand is label
-            else if (((*instr)->op->opd_types[k]) == LABEL){
+            else if (((*instr)->op->opd_types[k]) == LABEL)
                 (*instr)->opds[k] = operand_create_label(aux->data);
-            }
             //if operand is register
             else if (((*instr)->op->opd_types[k]) == REGISTER){
                 //ignorar o 1o char, que sera o $
                 (*instr)->opds[k] = operand_create_register(aux->data[1]);
             }
             //if operand is string
-            else if (((*instr)->op->opd_types[k]) == STRING) {
-
-                (*instr)->opds[k] = operand_create_string(aux->data);
-            }
+            else if (((*instr)->op->opd_types[k]) == STRING) (*instr)->opds[k] = operand_create_string(aux->data);
             //if operand is number
             else {
                 //needs to be properly done
                 (*instr)->opds[k] = operand_create_number((long long)aux->data);
-
             }
-
         }
         // checks if number of operands is correct
         for (k = 0; k < 3; k++) {
             if(k < opdNumber && (*instr)->opds[k] == NULL){
                 set_error_msg("missing operand");
+                // errado
                 *errptr = "NULL";
                 return 0;
             }
             if(k >= opdNumber && (*instr)->opds[k] != NULL){
                 set_error_msg("too many operands");
+                // errado
                 *errptr = "NULL";
                 return 0;
             }
         }
-
         // inserts OP_NONES, if any
         while (k < 3) {
             opd[k] = emalloc(sizeof(Operand));
@@ -187,9 +231,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             k++;
         }
         // saves instruction in instruction list (TO FIX)
-        //Instruction *new = instr_create(label, opt, opdNumber);
-        // traverse linked list received (**instr) and adds it to end
-
+        *instr = insert_instruction(*instr, label, opt, opd);
         // goes to the start of next instruction, if any
         while (isspace(s[i])) i++;
         if (s[i] == ';') i++;
