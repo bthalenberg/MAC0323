@@ -76,7 +76,9 @@ void print_instruction(Instruction instr) {
        printf ("operand  = %s(\"%s\")\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.label);
     // CASE ONE OPERAND not a label
     else if (instr.opds[1]->type == 0 && instr.opds[2]->type == 0) {
-        printf ("operand  = %s(%lld)\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.num);
+        if (instr.opds[0]->type == REGISTER)
+            printf ("operand  = %s(%d)\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.reg);
+        else printf ("operand  = %s(%lld)\n", get_operand_string(instr.opds[0]->type), instr.opds[0]->value.num);
     }
 
     // CASE TWO OPERANDS, one being a label
@@ -133,7 +135,6 @@ int main(int argc, char** argv) {
                         res.data->opd = emalloc(sizeof(Operand));
                         res.data->opd->type = REGISTER;
                         res.data->opd->value.reg = instr->opds[0]->value.reg;
-                        //printf("%d\n" instr->opds[0]->value.reg);
                     }
                 }
                 // printa as instruções
