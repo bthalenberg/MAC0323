@@ -94,20 +94,28 @@ static int read_operand(const char *s, Buffer *b, int i) {
     // Reads operand as string if it starts with '"'
     if (s[i] == '"') {
         buffer_push_char(b, s[i++]);
+        b->p++;
         while (s[i] != '"' && s[i] != '\n' && s[i] != '\0') {
             buffer_push_char(b, s[i++]);
+            b->p++;
             if (s[i] == '\\') {
                 buffer_push_char(b, s[i++]);
+                b->p++;
                 buffer_push_char(b, s[i]);
+                b->p++;
             }
         }
-        if (s[i] == '"') buffer_push_char(b, s[i++]);
+        if (s[i] == '"') {
+            buffer_push_char(b, s[i++]);
+            b->p++;
+        }
         return i;
     }
 
     if (s[i] == ',' || isspace(s[i])) i++;
     while (s[i] != ',' && !isspace(s[i]) && s[i] != '\0' && s[i] != ';' && s[i] != '*') {
         buffer_push_char(b, s[i++]);
+        b->p++;
     }
     return i;
 }
@@ -161,8 +169,6 @@ Instruction *insert_instruction(Instruction *head, char *label, const Operator *
 
     Instruction *new, *i, *ant;
     new = instr_create(label, opt, opds);
-    printf("hi %s\n", label);
-    printf("hello %s\n", new->label);
     // traverse list
     for (i = head, ant = NULL; i; ant = i, i = i->next) ;
     if (!ant) return new;
@@ -194,7 +200,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         // reads word for word
         i = read_word(s, aux, i);
         // if there was no word, line is empty
-        if (!aux->p) return 1;
+        if (aux->p == 0) return 1;
         // is the word an operator?
         opt = optable_find(aux->data);
         // not an operator. first word should be label or operator.
@@ -222,7 +228,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         int k;
         for (k = 0; k < opdNumber; k++) {
             i = read_operand(s, aux, i);
-            if (!aux->p) {
+            if (aux->p == 0) {
                 set_error_msg ("wrong number of operands");
                 if (errptr)  *errptr = &s[i - (aux->p - 1)];
                 return 0;
