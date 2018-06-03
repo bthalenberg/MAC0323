@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
     SymbolTable st = stable_create();
     Buffer *b = buffer_create(100);
     const char *errptr;
-    Instruction* instr = malloc(sizeof(Instruction);
+    Instruction* instr = malloc(sizeof(Instruction));
 
     FILE *f = fopen(argv[1], "r");
     if (f == NULL) die("Invalid file.\n");
