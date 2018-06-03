@@ -137,7 +137,8 @@ static void process_operand(Buffer *b, SymbolTable alias_table, Instruction **in
         (*instr)->opds[k] = operand_create_register(b->data[1]);
     }
     //if operand is string
-    else if (((*instr)->op->opd_types[k]) == STRING) (*instr)->opds[k] = operand_create_string(b->data);
+    else if (((*instr)->op->opd_types[k]) == STRING)
+        (*instr)->opds[k] = operand_create_string(b->data);
     //if operand is number
     else {
         //needs to be properly done
