@@ -25,8 +25,10 @@ static int read_word(const char *s, Buffer *b, int i) {
     // skip comments
     if (s[i] == '*') return i;
     // reads until EOL or space
-    while (s[i] != '\0' && s[i] != '\n' && !isspace(s[i]))
+    while (s[i] != '\0' && s[i] != '\n' && !isspace(s[i])) {
         buffer_push_char(b, s[i++]);
+        b->p++;
+    }
     return i;
 }
 
@@ -159,6 +161,8 @@ Instruction *insert_instruction(Instruction *head, char *label, const Operator *
 
     Instruction *new, *i, *ant;
     new = instr_create(label, opt, opds);
+    printf("hi %s\n", label);
+    printf("hello %s\n", new->label);
     // traverse list
     for (i = head, ant = NULL; i; ant = i, i = i->next) ;
     if (!ant) return new;
@@ -166,6 +170,7 @@ Instruction *insert_instruction(Instruction *head, char *label, const Operator *
     return head;
 }
 
+/* ------------------------------- PARSER -------------------------------------- */
 /*
   Return instruction corresponding to assembly language line.
   INPUT:
@@ -182,7 +187,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
     const Operator *opt;
     char *label;
     Operand *opd[3];
-    EntryData *data;
+    EntryData *data = emalloc(sizeof(EntryData));
 
     // reads s until EOL
     while (s[i] != '\0' && s[i] != '\n' ) {
@@ -245,6 +250,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             k++;
         }
         // saves instruction in instruction list (TO FIX)
+        printf("hello\n");
         *instr = insert_instruction(*instr, label, opt, opd);
         // goes to the start of next instruction, if any
         while (isspace(s[i])) i++;
