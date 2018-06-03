@@ -76,7 +76,7 @@ void print_instruction(Instruction instr) {
             printf ("operand  = %s(\"%s\")\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.label);
         if (instr.opds[i]->type == REGISTER)
             printf ("operand  = %s(%d)\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.reg);
-        else printf("case4\n"); printf ("operand  = %s(%lld)\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.num);
+        else printf ("operand  = %s(%lld)\n", get_operand_string(instr.opds[i]->type), instr.opds[i]->value.num);
         i++;
     }
 }
