@@ -160,6 +160,9 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             }
             //if operand is number
             else {
+                //needs to be properly done
+                (*instr)->opds[opnum] = operand_create_number(aux->data);
+
             }
 
         }
