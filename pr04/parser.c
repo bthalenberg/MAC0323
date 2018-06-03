@@ -23,7 +23,7 @@ static int read_word(const char *s, Buffer *b, int i) {
     // skip spaces
     while (isspace(s[i])) i++;
     // skip comments
-    //if (s[i] == '*') return i;
+    if (s[i] == '*') return i;
     // reads until EOL or space
     while (s[i] != '\0' && s[i] != '\n' && !isspace(s[i]))
         buffer_push_char(b, s[i++]);
@@ -110,8 +110,6 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         i = read_word(s, aux, i);
         // if there was no word, line is empty
         if (!aux->p) return 1;
-        // if word was a comment
-        if (aux->p[0] == '*') return 1;
         // is the word an operator?
         opt = optable_find(aux->data);
         // not an operator. first word should be label or operator.
