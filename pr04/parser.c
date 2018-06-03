@@ -120,47 +120,100 @@ static int read_operand(const char *s, Buffer *b, int i) {
     return i;
 }
 
-long long to_decimal(Buffer *b){
-    long long resp = 0;
+octa to_decimal(Buffer *b){
+    octa resp = 0;
     int digit;
     for(int i = 1; i < (int)b->buffer_size; i++){
         resp = resp * 16;
         if( b->data[i]>='0' && b->data[i]<='9')
             digit = b->data[i] - '0';
-        else 
+        else
             digit = b->data[i] + 10 - (b->data[i]>='A' && b->data[i]<='Z')?'a':'A';
         resp = resp + digit;
     }
     return resp;
 }
 
+/* Create operand */
+static Operand *create_operand(Buffer *b, SymbolTable alias_table, const char **errptr, int i) {
+    octa aux = 0;
+    char *s = emalloc ((b->p + 1) * sizeof(char));
+    strcpy (s, b->data);
+    // if is register
+    if (s[0] == '$') {
+        for (int j = 1; s[j] != '\0'; j++) {
+            if (s[j] < '0' || s[j] > '9') return NULL;
+            aux *= 10;
+            aux += (s[j] - '0');
+        }
+        if (aux > 255) return NULL;
+        return operand_create_register(aux);
+    }
+
+    // if is string
+    if (s[0] == '"') {
+        if (s[b->p - 1] == '"') return operand_create_string(s);
+        else {
+            set_error_msg("mismatched quotes");
+            if (errptr) *errptr = &s[i - (b->p - 1)];
+            return NULL;
+        }
+    }
+
+    // if hex number
+    if (s[0] == '#') {
+        for (int j = 1; s[j] != '\0'; j++) {
+            if (!(s[j] >= '0' && s[j] <= '9') || (s[j] >= 'A' && s[j] <= 'F') || (s[j] >= 'a' && s[j] <= 'f'))
+               return NULL;
+        }
+        aux = to_decimal(b);
+        return operand_create_number(aux);
+    }
+
+    // if base 10
+    if ((s[0] >= '0' && s[0] <= '9') || s[0] == '-') {
+        for (int j = 1; s[j] != '\0'; j++)
+            if (s[j] < '0' || s[j] > '9') return NULL;
+        aux = atoi (s);
+        return operand_create_number (aux);
+    }
+
+    // if label
+    //if (validate_label(s)) {
+    //    EntryData *alias;
+    //    alias = stable_find (stable, s);
+    //    if (alias)    return operand_create_register (alias->i);
+    //    return operand_create_label (s);
+    //}
+    return NULL;
+}
 
 /*
     Process operands
 */
-static void process_operand(Buffer *b, SymbolTable alias_table, Instruction **instr, int k, EntryData *data) {
-    //Check if operand is on Alias Table
-    data = stable_find(alias_table, b->data);
-    //if operand is alias
-    if (data != NULL) (*instr)->opds[k] = data->opd;
-    //if operand is label
-    else if (((*instr)->op->opd_types[k]) == LABEL)
-        (*instr)->opds[k] = operand_create_label(b->data);
-    //if operand is register
-    else if (((*instr)->op->opd_types[k]) == REGISTER){
-        //ignorar o 1o char, que sera o $ (precisa ignorar? acho que nao!)
-        (*instr)->opds[k] = operand_create_register(b->data[1]);
+static void process_operand(Buffer *b, SymbolTable alias_table, Instruction **instr, int k, EntryData *data,
+                            const char **errptr, const Operator *opt, const char *s) {
+    Operand *opd = create_operand(b, alias_table, errptr, k);
+    if (opd && opd->type & NUMBER_TYPE) {
+        int num  = opd->value.num;
+        if (opt->name[0] == 'J') {
+            if (num > 16777215 || num < -16777215)
+                opd = NULL;
+        }
+        else if (opt->opcode & INT) {
+            if (b->data[0] != 'D' && b->data[1] != 'B')
+               if (num > 255)
+                   opd = NULL;
+        }
+        else
+            if (num > 255)
+                opd = NULL;
     }
-    //if operand is string
-    else if (((*instr)->op->opd_types[k]) == STRING)
-        (*instr)->opds[k] = operand_create_string(b->data);
-    //if operand is number
-    else {
-        //if operand is hexadecimal number
-        if(b->data[0]=='#')(*instr)->opds[k] = operand_create_number(to_decimal(b));
-        //if operand is decimal number
-        (*instr)->opds[k] = operand_create_number((long long)(b->data));
-    }
+
+    // Checks if the type of operand_read and the expected_type coincides
+    if (opd && opd->type & opt->opd_types[k])
+    set_error_msg ("invalid operand");
+    if (errptr) *errptr = &s[k - (b->p - 1)];
 }
 
 /*
@@ -235,7 +288,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
                 return 0;
             }
             // stores and checks operands
-            process_operand(aux, alias_table, instr, k, data);
+            process_operand(aux, alias_table, instr, k, data, errptr, opt, s);
         }
         // checks if number of operands is correct
         for (k = 0; k < 3; k++) {
