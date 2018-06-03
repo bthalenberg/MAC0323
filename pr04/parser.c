@@ -291,16 +291,8 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             opd[k]->type = OP_NONE;
             k++;
         }
-        // saves instruction in instruction list 
+        // saves instruction in instruction list
         *instr = insert_instruction(*instr, label, opt, opd);
-        // checks if number of operands is correct
-        for (k = 0; k < opdNumber; k++) {
-            if ((*instr)->opds[k] != NULL){
-                set_error_msg("too many operands");
-                if (errptr)  *errptr = &s[i - (aux->p - 1)];
-                return 0;
-            }
-        }
         // goes to the start of next instruction, if any
         while (isspace(s[i])) i++;
         if (s[i] == ';') i++;
