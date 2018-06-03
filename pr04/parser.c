@@ -179,20 +179,19 @@ static Operand *create_operand(Buffer *b, SymbolTable alias_table, const char **
     }
 
     // if label
-    //if (validate_label(s)) {
-    //    EntryData *alias;
-    //    alias = stable_find (stable, s);
-    //    if (alias)    return operand_create_register (alias->i);
-    //    return operand_create_label (s);
-    //}
+    if (validate_label(b, s, errptr, alias_table, i)) {
+        EntryData *alias = stable_find(alias_table, s);
+        if (alias) return operand_create_register(alias->i);
+        return operand_create_label(s);
+    }
     return NULL;
 }
 
 /*
     Process operands
 */
-static void process_operand(Buffer *b, SymbolTable alias_table, Instruction **instr, int k, EntryData *data,
-                            const char **errptr, const Operator *opt, const char *s) {
+static void process_operand(Buffer *b, SymbolTable alias_table, int k, const char **errptr,
+                            const Operator *opt, const char *s) {
     Operand *opd = create_operand(b, alias_table, errptr, k);
     if (opd && opd->type & NUMBER_TYPE) {
         int num  = opd->value.num;
@@ -247,7 +246,6 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
     const Operator *opt;
     char *label;
     Operand *opd[3];
-    EntryData *data = emalloc(sizeof(EntryData));
 
     // reads s until EOL
     while (s[i] != '\0' && s[i] != '\n' ) {
@@ -288,7 +286,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
                 return 0;
             }
             // stores and checks operands
-            process_operand(aux, alias_table, instr, k, data, errptr, opt, s);
+            process_operand(aux, alias_table, k, errptr, opt, s);
         }
         // checks if number of operands is correct
         for (k = 0; k < 3; k++) {
