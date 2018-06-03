@@ -216,17 +216,14 @@ static void process_operand(Buffer *b, SymbolTable alias_table, int k, const cha
 }
 
 /*
-    Inserts instruction in linked list
+    Inserts instruction in linked list and returns it
 */
 Instruction *insert_instruction(Instruction *head, char *label, const Operator *opt, Operand *opds[3]) {
 
-    Instruction *new, *i, *ant;
+    Instruction *new = head;
+    while (new != NULL) new = new->next;
     new = instr_create(label, opt, opds);
-    // traverse list
-    for (i = head, ant = NULL; i; ant = i, i = i->next) ;
-    if (!ant) return new;
-    ant->next = new;
-    return head;
+    return new;
 }
 
 /* ------------------------------- PARSER -------------------------------------- */
@@ -281,25 +278,12 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         for (k = 0; k < opdNumber; k++) {
             i = read_operand(s, aux, i);
             if (aux->p == 0) {
-                set_error_msg ("wrong number of operands");
+                set_error_msg ("missing operand");
                 if (errptr)  *errptr = &s[i - (aux->p - 1)];
                 return 0;
             }
             // stores and checks operands
             process_operand(aux, alias_table, k, errptr, opt, s);
-        }
-        // checks if number of operands is correct
-        for (k = 0; k < 3; k++) {
-            if(k < opdNumber && (*instr)->opds[k] == NULL){
-                set_error_msg("missing operand");
-                if (errptr)  *errptr = &s[i - (aux->p - 1)];
-                return 0;
-            }
-            if(k >= opdNumber && (*instr)->opds[k] != NULL){
-                set_error_msg("too many operands");
-                if (errptr)  *errptr = &s[i - (aux->p - 1)];
-                return 0;
-            }
         }
         // inserts OP_NONES, if any
         while (k < 3) {
@@ -307,9 +291,16 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             opd[k]->type = OP_NONE;
             k++;
         }
-        // saves instruction in instruction list (TO FIX)
-        printf("hello\n");
+        // saves instruction in instruction list 
         *instr = insert_instruction(*instr, label, opt, opd);
+        // checks if number of operands is correct
+        for (k = 0; k < opdNumber; k++) {
+            if ((*instr)->opds[k] != NULL){
+                set_error_msg("too many operands");
+                if (errptr)  *errptr = &s[i - (aux->p - 1)];
+                return 0;
+            }
+        }
         // goes to the start of next instruction, if any
         while (isspace(s[i])) i++;
         if (s[i] == ';') i++;
