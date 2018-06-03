@@ -119,18 +119,16 @@ int main(int argc, char** argv) {
                 printf ("line     = %s", b->data);
                 // caso IS: armazena na ST
                 if (instr->op->opcode == -1) {
-                    printf("case 2\n");
-                    InsertionResult res = stable_insert(st, instr->opds[0]->value.label);
+                    InsertionResult res = stable_insert(st, instr->label);
                     if (res.new == 0) {
                         fprintf(stderr, "line     = %s\n", b->data);
-                        fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->opds[0]->value.label);
+                        fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->label);
                     }
                     else {
                         res.data->opd = emalloc(sizeof(Operand));
                         res.data->opd->type = REGISTER;
                         res.data->opd->value.reg = instr->opds[1]->value.reg;
                     }
-
                 }
                 // printa as instruções
                 while (instr != NULL ) {
