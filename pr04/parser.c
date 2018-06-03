@@ -110,6 +110,7 @@ static int read_operand(const char *s, Buffer *b, int i) {
             buffer_push_char(b, s[i++]);
             b->p++;
         }
+        buffer_push_char(b, '\0');
         return i;
     }
 
@@ -118,6 +119,7 @@ static int read_operand(const char *s, Buffer *b, int i) {
         buffer_push_char(b, s[i++]);
         b->p++;
     }
+    buffer_push_char(b, '\0');
     return i;
 }
 
@@ -263,8 +265,6 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
             strcpy(label, aux->data);
             // see if next word is operator
             i = read_word(s, aux, i);
-            // ERRO DE ADD
-            printf("%d %s\n", i, aux->data);
             opt = optable_find(aux->data);
             // check if valid
             if (!opt) {
