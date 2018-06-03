@@ -1,8 +1,7 @@
 ############################# Makefile ##########################
 TARGET = prog
-LIBS = -lm
 CC = gcc
-CFLAGS = -Wall 
+CFLAGS = -Wall -std=c99 -pedantic -O2 -Wextra
 
 .PHONY: default all clean
 
@@ -18,7 +17,7 @@ HEADERS = $(wildcard *.h)
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
+	$(CC) $(OBJECTS) -Wall -o $@
 
 clean:
 	-rm -f *.o
