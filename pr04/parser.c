@@ -86,35 +86,53 @@ static int number_of_operands (const Operator *opt) {
 */
 static int read_operand(const char *s, Buffer *b, int i) {
 
-    buffer_reset (b);
+    buffer_reset(b);
     while (isspace (s[i])) i++;
 
     // Reads operand as string if it starts with '"'
     if (s[i] == '"') {
-        buffer_push_back (b, s[i]);
-        i++;
+        buffer_push_char(b, s[i++]);
         while (s[i] != '"' && s[i] != '\n' && s[i] != '\0') {
-            buffer_push_back (b, s[i]);
-            i++;
+            buffer_push_char(b, s[i++]);
             if (s[i] == '\\') {
-                buffer_push_back (b, s[i]);
-                i++;
-                buffer_push_back (b, s[i]);
+                buffer_push_char(b, s[i++]);
+                buffer_push_char(b, s[i]);
             }
         }
-        if (s[i] == '"') {
-            buffer_push_back (b, s[i]);
-            i++;
-        }
+        if (s[i] == '"') buffer_push_char(b, s[i++]);
         return i;
     }
 
-    if (s[i] == ',' || isspace (s[i])) i++;
-    while (s[i] != ',' && !isspace (s[i]) && s[i] != '\0' && s[i] != ';' && s[i] != '*') {
-        buffer_push_back (b, s[i]);
-        i++;
+    if (s[i] == ',' || isspace(s[i])) i++;
+    while (s[i] != ',' && !isspace(s[i]) && s[i] != '\0' && s[i] != ';' && s[i] != '*') {
+        buffer_push_char(b, s[i++]);
     }
     return i;
+}
+
+/*
+    Process operands
+*/
+static void process_operand(Buffer *b, SymbolTable alias_table, Instruction **instr, int k, EntryData *data) {
+    //Check if operand is on Alias Table
+    data = stable_find(alias_table, b->data);
+    //if operand is alias
+    if (data != NULL) (*instr)->opds[k] = data->opd;
+    //if operand is label
+    else if (((*instr)->op->opd_types[k]) == LABEL)
+        (*instr)->opds[k] = operand_create_label(b->data);
+    //if operand is register
+    else if (((*instr)->op->opd_types[k]) == REGISTER){
+        //ignorar o 1o char, que sera o $ (precisa ignorar? acho que nao!)
+        (*instr)->opds[k] = operand_create_register(b->data[1]);
+    }
+    //if operand is string
+    else if (((*instr)->op->opd_types[k]) == STRING) (*instr)->opds[k] = operand_create_string(b->data);
+    //if operand is number
+    else {
+        //needs to be properly done
+        (*instr)->opds[k] = operand_create_number((long long)b->data);
+    }
 }
 
 /*
@@ -148,7 +166,6 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
     char *label;
     Operand *opd[3];
     EntryData *data;
-    Instruction *instr;
 
     // reads s until EOL
     while (s[i] != '\0' && s[i] != '\n' ) {
@@ -183,31 +200,13 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         int k;
         for (k = 0; k < opdNumber; k++) {
             i = read_operand(s, aux, i);
-            if (!aux->i) {
+            if (!aux->p) {
                 set_error_msg ("wrong number of operands");
-                if (errptr)  *errptr = &s[i - (aux->i - 1)];
+                if (errptr)  *errptr = &s[i - (aux->p - 1)];
                 return 0;
             }
             // stores and checks operands
-            //Check if operand is on Alias Table
-            data = stable_find(alias_table, aux->data);
-            //if operand is alias
-            if (data != NULL) (*instr)->opds[k] = data->opd;
-            //if operand is label
-            else if (((*instr)->op->opd_types[k]) == LABEL)
-                (*instr)->opds[k] = operand_create_label(aux->data);
-            //if operand is register
-            else if (((*instr)->op->opd_types[k]) == REGISTER){
-                //ignorar o 1o char, que sera o $
-                (*instr)->opds[k] = operand_create_register(aux->data[1]);
-            }
-            //if operand is string
-            else if (((*instr)->op->opd_types[k]) == STRING) (*instr)->opds[k] = operand_create_string(aux->data);
-            //if operand is number
-            else {
-                //needs to be properly done
-                (*instr)->opds[k] = operand_create_number((long long)aux->data);
-            }
+            process_operand(aux, alias_table, instr, k, data);
         }
         // checks if number of operands is correct
         for (k = 0; k < 3; k++) {
