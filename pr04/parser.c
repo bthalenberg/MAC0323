@@ -29,6 +29,7 @@ static int read_word(const char *s, Buffer *b, int i) {
         buffer_push_char(b, s[i++]);
         b->p++;
     }
+    //buffer_push_char(b,'\0');
     return i;
 }
 
