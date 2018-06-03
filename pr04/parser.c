@@ -212,14 +212,12 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         for (k = 0; k < 3; k++) {
             if(k < opdNumber && (*instr)->opds[k] == NULL){
                 set_error_msg("missing operand");
-                // errado
-                *errptr = "NULL";
+                if (errptr)  *errptr = &s[i - (aux->p - 1)];
                 return 0;
             }
             if(k >= opdNumber && (*instr)->opds[k] != NULL){
                 set_error_msg("too many operands");
-                // errado
-                *errptr = "NULL";
+                if (errptr)  *errptr = &s[i - (aux->p - 1)];
                 return 0;
             }
         }
