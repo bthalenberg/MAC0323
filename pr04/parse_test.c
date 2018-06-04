@@ -53,23 +53,35 @@ void print_instruction(Instruction instr) {
     printf ("operator = %s\n", instr.op->name);
 
     // Print operands
+    printf ("operands =");
     // CASE NO OPERANDS
-    if (instr.opds[0]->type == 0)
-       printf ("operand  = n/a\n");
+    if (instr.opds[0]->type == 0) {
+       printf (" n/a\n");
+       return;
+   }
 
     int i = 0;
-    while (instr.opds[i]->type != 0) {
-        if (instr.opds[i]->type == STRING){
-            printf ("operand  = String(%s)\n", instr.opds[i]->value.str);
+    while (instr.opds[i]->type != 0) i++;
+
+    for (int j = 0; j < i; ++j) {
+        if (instr.opds[j]->type == STRING){
+            printf(" String(%s)", instr.opds[j]->value.str);
+            if (j < i - 1) printf(",");
         }
-        if (instr.opds[i]->type == LABEL){
-            printf ("operand  = Label(\"%s\")\n", instr.opds[i]->value.label);
+        if (instr.opds[j]->type == LABEL){
+            printf(" Label(\"%s\")", instr.opds[j]->value.label);
+            if (j < i - 1) printf(",");
         }
-        if (instr.opds[i]->type == REGISTER)
-            printf ("operand  = Register(%d)\n",instr.opds[i]->value.reg);
-        else printf ("operand  = Number(%lld)\n", instr.opds[i]->value.num);
-        i++;
+        if (instr.opds[j]->type == REGISTER) {
+            printf(" Register(%d)",instr.opds[i]->value.reg);
+            if (j < i - 1) printf(",");
+        }
+        else {
+            printf (" Number(%lld)", instr.opds[j]->value.num);
+            if (j < i - 1) printf(",");
+        }
     }
+    printf("\n");
 }
 
 int main(int argc, char** argv) {
