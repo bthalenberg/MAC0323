@@ -101,6 +101,7 @@ int main(int argc, char** argv) {
     // Reads text until EOF
     while (len) {
         len = read_line(f, b);
+
         if (len == 0) break;
         // if parse was successful, prints line and instr content
         if (parse (b->data, st, &instr, &errptr)) {
