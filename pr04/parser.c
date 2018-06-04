@@ -253,7 +253,7 @@ Instruction *insert_instruction(Instruction *head, char *label, const Operator *
   where the error was found.
 */
 int parse(const char *s, SymbolTable alias_table, Instruction **instr, const char **errptr) {
-    Buffer *aux = buffer_create(100);
+    Buffer *aux = buffer_create(20);
     int i = 0;
     const Operator *opt;
     char *label;

@@ -63,16 +63,16 @@ void print_instruction(Instruction instr) {
     int i = 0;
     while (i < 3 && instr.opds[i]->type != 0) i++;
 
-    for (int j = 0; j < i; ++j) {
+    for (int j = 0; j < i; j++) {
         if (instr.opds[j]->type == STRING){
             printf(" String(%s)", instr.opds[j]->value.str);
             if (j < i - 1) printf(",");
         }
-        if (instr.opds[j]->type == LABEL){
+        else if (instr.opds[j]->type == LABEL){
             printf(" Label(\"%s\")", instr.opds[j]->value.label);
             if (j < i - 1) printf(",");
         }
-        if (instr.opds[j]->type == REGISTER) {
+        else if (instr.opds[j]->type == REGISTER) {
             printf(" Register(%d)", instr.opds[j]->value.reg);
             if (j < i - 1) printf(",");
         }
