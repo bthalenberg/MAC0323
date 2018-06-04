@@ -211,11 +211,12 @@ static Operand *process_operand(Buffer *b, SymbolTable alias_table, int k, const
     }
     if (opd && opd->type & LABEL) {
         Instruction *new = head;
-        while (new != NULL) {
+        while (new) {
+            if (new->label) printf("%s label\n", new->label);
             if ((new->label && strcmp(new->label, s) != 0) || (!new->label))
                 new = new->next;
         }
-        if (new) printf("achou\n");
+        if (new) return opd;
         if (!new) {
             set_error_msg("invalid label");
             if (errptr) *errptr = &s[k - (b->p - 1)];

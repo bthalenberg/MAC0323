@@ -124,10 +124,10 @@ int main(int argc, char** argv) {
                     }
                 }
                 // printa as instruções
-                while (instr != NULL ) {
-                    print_instruction(*instr);
-                    instr = instr->next;
-                }
+                Instruction *aux = instr;
+                while (aux->next != NULL )
+                    aux = aux->next;
+                print_instruction(*aux);
             }
         }
         // if an error occurred, prints error message to stderr with line
