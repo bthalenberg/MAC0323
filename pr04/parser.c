@@ -292,7 +292,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         for (k = 0; k < opdNumber; k++) {
             i = read_operand(s, aux, i);
             if (aux->p == 0) {
-                set_error_msg ("missing operand");
+                set_error_msg ("expected operand");
                 if (errptr)  *errptr = &s[i - (aux->p - 1)];
                 return 0;
             }
