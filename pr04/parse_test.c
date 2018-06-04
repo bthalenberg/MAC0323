@@ -56,12 +56,15 @@ void print_instruction(Instruction instr) {
     // CASE NO OPERANDS
     if (instr.opds[0]->type == 0)
        printf ("operand  = n/a\n");
+
     int i = 0;
     while (instr.opds[i]->type != 0) {
-        if (instr.opds[i]->type == STRING)
+        if (instr.opds[i]->type == STRING){
             printf ("operand  = String(%s)\n", instr.opds[i]->value.str);
-        if (instr.opds[i]->type == LABEL)
+        }
+        if (instr.opds[i]->type == LABEL){
             printf ("operand  = Label(\"%s\")\n", instr.opds[i]->value.label);
+        }
         if (instr.opds[i]->type == REGISTER)
             printf ("operand  = Register(%d)\n",instr.opds[i]->value.reg);
         else printf ("operand  = Number(%lld)\n", instr.opds[i]->value.num);

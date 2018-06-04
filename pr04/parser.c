@@ -38,7 +38,8 @@ static int read_word(const char *s, Buffer *b, int i) {
     If l is a label, saves it in the ST and returns 1;
     Else, sets error  message and returns 0;
 */
-static int validate_label(Buffer *l, const char *s, const char **errptr, SymbolTable alias_table, int ind) {
+static int validate_label(Buffer *l, const char *s, const char **errptr, 
+            SymbolTable alias_table, int ind, int isOperand) {
     int error = -1;
     //Checks if size is valid
     if (l->buffer_size >= 16 || l->buffer_size == 0) {
@@ -47,14 +48,15 @@ static int validate_label(Buffer *l, const char *s, const char **errptr, SymbolT
         return 0;
     }
     //Check if label already exists
-    if (stable_find(alias_table, l->data) != NULL) {
+    if (stable_find(alias_table, l->data) != NULL && !isOperand) {
         set_error_msg("label already exists");
         if (errptr)  *errptr = &s[ind - (l->p - 1)];
         return 0;
     }
     // check if first char is valid
-    if (!(isalpha(l->data[0])) || l->data[0] == ' ')
+    if (!(isalpha(l->data[0])) || l->data[0] == ' '){
        error = 0;
+    }
     // goes through string trying to find error
     else {
         int i = 1;
@@ -152,7 +154,6 @@ static Operand *create_operand(Buffer *b, SymbolTable alias_table, const char **
         if (aux > 255) return NULL;
         return operand_create_register(aux);
     }
-
     // if is string
     if (s[0] == '"') {
         if (s[b->p - 1] == '"') return operand_create_string(s);
@@ -162,7 +163,6 @@ static Operand *create_operand(Buffer *b, SymbolTable alias_table, const char **
             return NULL;
         }
     }
-
     // if hex number
     if (s[0] == '#') {
         for (int j = 1; s[j] != '\0'; j++) {
@@ -172,19 +172,18 @@ static Operand *create_operand(Buffer *b, SymbolTable alias_table, const char **
         aux = to_decimal(b);
         return operand_create_number(aux);
     }
-
     // if base 10
     if ((s[0] >= '0' && s[0] <= '9') || s[0] == '-') {
         for (int j = 1; s[j] != '\0'; j++)
             if (s[j] < '0' || s[j] > '9') return NULL;
         aux = atoi (s);
         return operand_create_number (aux);
-    }
-
+    }  
     // if label
-    if (validate_label(b, s, errptr, alias_table, i)) {
+    if (validate_label(b, s, errptr, alias_table, i, 1)) {
         EntryData *alias = stable_find(alias_table, s);
         if (alias) return operand_create_register(alias->i);
+        printf("%d\n", operand_create_label(s)->type);
         return operand_create_label(s);
     }
     return NULL;
@@ -259,7 +258,7 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
         // not an operator. first word should be label or operator.
         if (!opt) {
             // validates label
-            if (!validate_label(aux, s, errptr, alias_table, i)) return 0;
+            if (!validate_label(aux, s, errptr, alias_table, i, 0)) return 0;
             // if it is a label, saves it
             label = emalloc(sizeof(aux->data));
             strcpy(label, aux->data);
