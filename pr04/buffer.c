@@ -29,8 +29,7 @@ void buffer_destroy(Buffer *B){
   Reset buffer, eliminating contents.
 */
 void buffer_reset(Buffer *B){
-	free(B->data);
-	B->data = malloc(B->member_size * sizeof(char));
+    for (unsigned int i = 0; i < B->member_size; i++) B->data[i] = 0;
 	B->buffer_size = 1;
 	B->p = 0;
 }
