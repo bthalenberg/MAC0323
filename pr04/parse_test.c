@@ -61,7 +61,7 @@ void print_instruction(Instruction instr) {
    }
 
     int i = 0;
-    while (instr.opds[i]->type != 0) i++;
+    while (i<3 && instr.opds[i]->type != 0) i++;
 
     for (int j = 0; j < i; ++j) {
         if (instr.opds[j]->type == STRING){
@@ -73,7 +73,7 @@ void print_instruction(Instruction instr) {
             if (j < i - 1) printf(",");
         }
         if (instr.opds[j]->type == REGISTER) {
-            printf(" Register(%d)",instr.opds[i]->value.reg);
+            printf(" Register(%d)",instr.opds[j]->value.reg);
             if (j < i - 1) printf(",");
         }
         else {
