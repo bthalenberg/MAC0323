@@ -128,12 +128,13 @@ static int read_operand(const char *s, Buffer *b, int i) {
 octa to_decimal(Buffer *b){
     octa resp = 0;
     int digit;
-    for(int i = 1; i < (int)b->buffer_size; i++){
+    for(int i = 1; i < (int)b->p ; i++){
+        printf("%lld\n",resp);
         resp = resp * 16;
         if( b->data[i]>='0' && b->data[i]<='9')
             digit = b->data[i] - '0';
         else
-            digit = b->data[i] + 10 - (b->data[i]>='A' && b->data[i]<='Z')?'a':'A';
+            digit = b->data[i] + 10 - ((b->data[i]>='A' && b->data[i]<='Z')?'A':'a');
         resp = resp + digit;
     }
     return resp;
@@ -166,7 +167,7 @@ static Operand *create_operand(Buffer *b, SymbolTable alias_table, const char **
     // if hex number
     if (s[0] == '#') {
         for (int j = 1; s[j] != '\0'; j++) {
-            if (!(s[j] >= '0' && s[j] <= '9') || (s[j] >= 'A' && s[j] <= 'F') || (s[j] >= 'a' && s[j] <= 'f'))
+            if (!((s[j] >= '0' && s[j] <= '9') || (s[j] >= 'A' && s[j] <= 'F') || (s[j] >= 'a' && s[j] <= 'f')))
                return NULL;
         }
         aux = to_decimal(b);
