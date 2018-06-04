@@ -183,7 +183,6 @@ static Operand *create_operand(Buffer *b, SymbolTable alias_table, const char **
     if (validate_label(b, s, errptr, alias_table, i, 1)) {
         EntryData *alias = stable_find(alias_table, s);
         if (alias) return operand_create_register(alias->i);
-        printf("%d\n", operand_create_label(s)->type);
         return operand_create_label(s);
     }
     return NULL;
