@@ -58,7 +58,7 @@ void print_instruction(Instruction instr) {
        printf ("operand  = n/a\n");
 
     int i = 0;
-    while (instr.opds[i]->type != 0) {
+    while (i<3 && instr.opds[i]->type != 0) {
         if (instr.opds[i]->type == STRING){
             printf ("operand  = String(%s)\n", instr.opds[i]->value.str);
         }
@@ -89,6 +89,7 @@ int main(int argc, char** argv) {
     // Reads text until EOF
     while (len) {
         len = read_line(f, b);
+
         if (len == 0) break;
         // if parse was successful, prints line and instr content
         if (parse (b->data, st, &instr, &errptr)) {
