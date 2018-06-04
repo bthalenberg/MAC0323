@@ -236,9 +236,9 @@ static Operand *process_operand(Buffer *b, SymbolTable alias_table, int k, const
 Instruction *insert_instruction(Instruction *head, char *label, const Operator *opt, Operand *opds[3]) {
 
     Instruction *new = head;
-    while (new != NULL) new = new->next;
-    new = instr_create(label, opt, opds);
-    return new;
+    while (new->next != NULL) new = new->next;
+    new->next = instr_create(label, opt, opds);
+    return new->next;
 }
 
 /* ------------------------------- PARSER -------------------------------------- */
