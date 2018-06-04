@@ -38,7 +38,7 @@ static int read_word(const char *s, Buffer *b, int i) {
     If l is a label, saves it in the ST and returns 1;
     Else, sets error  message and returns 0;
 */
-static int validate_label(Buffer *l, const char *s, const char **errptr, 
+static int validate_label(Buffer *l, const char *s, const char **errptr,
             SymbolTable alias_table, int ind, int isOperand) {
     int error = -1;
     //Checks if size is valid
@@ -62,7 +62,7 @@ static int validate_label(Buffer *l, const char *s, const char **errptr,
         int i = 1;
         while (l->data[i] != '\0' && l->data[i] != '\n') {
             if (!(isalnum(l->data[i]) || l->data[i] == '_'))
-               error = i;
+                error = i;
             i++;
         }
     }
@@ -90,8 +90,8 @@ static int number_of_operands (const Operator *opt) {
     Reads Operands in the right format
 */
 static int read_operand(const char *s, Buffer *b, int i) {
-
     buffer_reset(b);
+    b->data[0] = '\0';
     while (isspace (s[i])) i++;
 
     // Reads operand as string if it starts with '"'
@@ -116,8 +116,8 @@ static int read_operand(const char *s, Buffer *b, int i) {
         return i;
     }
 
-    if (s[i] == ',' || isspace(s[i])) i++;
-    while (s[i] != ',' && !isspace(s[i]) && s[i] != '\0' && s[i] != ';' && s[i] != '*') {
+    if (s[i] == ',' || (isspace(s[i]) && s[i] != '\n')) i++;
+    while (s[i] != ',' && !isspace(s[i]) && s[i] != '\0' && s[i] != ';' && s[i] != '*' && s[i] != '\n') {
         buffer_push_char(b, s[i++]);
         b->p++;
     }
@@ -176,14 +176,14 @@ static Operand *create_operand(Buffer *b, SymbolTable alias_table, const char **
     if ((s[0] >= '0' && s[0] <= '9') || s[0] == '-') {
         for (int j = 1; s[j] != '\0'; j++)
             if (s[j] < '0' || s[j] > '9') return NULL;
-        aux = atoi (s);
-        return operand_create_number (aux);
-    }  
+        aux = atoi(s);
+        return operand_create_number(aux);
+    }
     // if label
     if (validate_label(b, s, errptr, alias_table, i, 1)) {
         EntryData *alias = stable_find(alias_table, s);
         if (alias) return operand_create_register(alias->i);
-        return operand_create_label(s);
+        else return operand_create_label(s);
     }
     return NULL;
 }
@@ -245,7 +245,6 @@ int parse(const char *s, SymbolTable alias_table, Instruction **instr, const cha
     const Operator *opt;
     char *label;
     Operand *opd[3];
-
     // reads s until EOL
     while (s[i] != '\0' && s[i] != '\n' ) {
         // reads word for word
