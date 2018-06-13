@@ -2,6 +2,7 @@
 #include "stable.h"
 #include "parser.h"
 #include "asmtypes.h"
+#include "buffer.h"
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -46,6 +47,39 @@ void store_registers(SymbolTable alias_table) {
     insertion.data->opd = opd6;
 }
 
+/*
+    Finds error position in a string
+*/
+int get_error_position(const char *errptr, Buffer *b) {
+    unsigned int i, j;
+    // goes through buffer char by char
+    for (i = 0; i < b->p; i++) {
+        // compares in search for error
+        for (j = 0; errptr[j] == b->data[i+j] && errptr[j] != '\0' && errptr[j] != '\n'; j++);
+        if (errptr[j] == '\0' || errptr[j] == '\n') break;
+    }
+    return i;
+}
+
+/*
+    Prints error message
+*/
+void print_error(const char *errptr, Buffer *b, int line) {
+    const char *error_msg;
+    int pos;
+    error_msg = get_error_msg();
+    pos = get_error_position(errptr, b);
+    // prints line with error
+    printf ("line %d: ", line);
+    for(unsigned int i = 0; i < b->p && b->data[i] != '*'; i++)
+                printf ("%c", b->data[i]);
+
+    // blank spaces to align error msg
+    for (int i = 0; i < pos + 6; i++)   printf(" ");
+    // pointer and error msg
+    printf("^\n%s\n", error_msg);
+}
+
 /* --------------------------------- MAIN ---------------------------------- */
 
 /* Args: filename (to print error messages), input stream with code to assemble and output stream
@@ -62,15 +96,62 @@ detected include:
     notas de aula). Você deve verificar se esses tamanhos foram respeitados.
 */
 int assemble(const char *filename, FILE *input, FILE *output) {
+    // init routine
+    // config for error.c
+    set_prog_name(filename);
+    if (input == NULL) die("Invalid file.\n");
+    Buffer *b = buffer_create(50);
+    const char *errptr;
+    Instruction* instr = malloc(sizeof(Instruction));
+    int cur, len;
+    cur = len = 1;
     // to store aliases defined through IS
     SymbolTable alias_table = stable_create();
     // to store labels and corresponding instruction number
     SymbolTable label_table = stable_create();
     // to store labels defined through EXTERN
     SymbolTable extern_table = stable_create();
-
     // storing standard aliases (registers)
     store_registers(alias_table);
-
+    int instrCounter = 1;
+    // Reads text until EOF
+    while (len) {
+        len = read_line(input, b);
+        if (len == 0) break;
+        // if parse was successful, prints line and instr content
+        if (parse(b->data, alias_table, &instr, &errptr)) {
+            // caso IS: armazena na ST
+            if (instr->op->opcode == -1) {
+                InsertionResult res = stable_insert(alias_table, instr->opds[0]->value.str);
+                if (res.new == 0) {
+                    fprintf(stderr, "line     = %s\n", b->data);
+                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->opds[0]->value.str);
+                }
+                else {
+                    res.data->opd = emalloc(sizeof(Operand));
+                    res.data->opd->type = instr->opds[1]->type;
+                    res.data->opd->value = instr->opds[1]->value;
+                }
+            }
+            if (instr->label) {
+                InsertionResult res = stable_insert(label_table, instr->label);
+                if (res.new == 0) {
+                    fprintf(stderr, "line     = %s\n", b->data);
+                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->label);
+                }
+                else {
+                    res.data->i = instrCounter;
+                }
+            }
+        }
+        // if an error occurred, prints error message to stderr with line
+        else print_error(errptr, b, cur);
+        printf("\n");
+        cur++;
+    }
+    buffer_destroy(b);
+    stable_destroy(alias_table);
+    stable_destroy(label_table);
+    stable_destroy(extern_table);
     return 1;
 }
