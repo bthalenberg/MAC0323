@@ -8,6 +8,9 @@
 #include <ctype.h>
 
 /* --------------------------------- AUX -------------------------------------- */
+/*
+    Stores special registers
+*/
 void store_registers(SymbolTable alias_table) {
     // rA = return value register
     InsertionResult insertion = stable_insert(alias_table, "rA");
@@ -80,6 +83,20 @@ void print_error(const char *errptr, Buffer *b, int line) {
     printf("^\n%s\n", error_msg);
 }
 
+/*
+    Checks if labels in EXTERN table were defined at some point.
+    Returns 1 if table is consistent; else returns 0.
+    TO DO!
+*/
+int check_extern_consistency(SymbolTable extern_table, SymbolTable label_table) {
+    // itera pelos itens de extern_table (fazer isso com a extern_visit, precisa criar função
+    // de visita especial)
+
+    // para cada item, verifica se está em label table. if !stable_find(item_em_extern_table, label_table), return 0;
+    return 1;
+}
+
+
 /* --------------------------------- MAIN ---------------------------------- */
 
 /* Args: filename (to print error messages), input stream with code to assemble and output stream
@@ -88,10 +105,10 @@ returns non-zero value. Else, returns zero. */
 
 /* Errors captured: errors captured by parser only need to be reported. Other errors to be
 detected include:
-    > Um rótulo de uma instrução não pode ser um alias e vice-versa.
-    > Aliases não podem ser definidos mais de uma vez.
-    > Uma instrução EXTERN não pode ter um rótulo. O rótulo exportado pela EXTERN deve ser definido.
-    > Rótulos não podem ser definidos mais de uma vez.
+    > Um rótulo de uma instrução não pode ser um alias e vice-versa. (done)
+    > Aliases não podem ser definidos mais de uma vez. (done)
+    > Uma instrução EXTERN não pode ter um rótulo. (done) O rótulo exportado pela EXTERN deve ser definido. (IN PROGRESS)
+    > Rótulos não podem ser definidos mais de uma vez. (done)
     > As instruções de desvio (JMP, JZ, etc.) suportam deslocamentos de tamanho máximo fixo (veja
     notas de aula). Você deve verificar se esses tamanhos foram respeitados.
 */
@@ -122,32 +139,50 @@ int assemble(const char *filename, FILE *input, FILE *output) {
         if (parse(b->data, alias_table, &instr, &errptr)) {
             // caso IS: armazena na ST
             if (instr->op->opcode == -1) {
-                InsertionResult res = stable_insert(alias_table, instr->label);
-                if (res.new == 0) {
+                if (stable_find(label_table, instr->label)) {
                     fprintf(stderr, "line     = %s\n", b->data);
-                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->label);
+                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned as label.", instr->label);
                 }
                 else {
-                    res.data->opd = emalloc(sizeof(Operand));
-                    res.data->opd->type = REGISTER;
-                    res.data->opd->value.reg = instr->opds[0]->value.reg;
+                    InsertionResult res = stable_insert(alias_table, instr->label);
+                    if (res.new == 0) {
+                        fprintf(stderr, "line     = %s\n", b->data);
+                        fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->label);
+                    }
+                    else {
+                        res.data->opd = emalloc(sizeof(Operand));
+                        res.data->opd->type = REGISTER;
+                        res.data->opd->value.reg = instr->opds[0]->value.reg;
+                    }
                 }
             }
             else if (instr->label) {
-                InsertionResult res = stable_insert(label_table, instr->label);
-                if (res.new == 0) {
+                if (stable_find(alias_table, instr->label)) {
                     fprintf(stderr, "line     = %s\n", b->data);
-                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->label);
+                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned as alias.", instr->label);
                 }
                 else {
-                    res.data->i = instrCounter;
+                    InsertionResult res = stable_insert(label_table, instr->label);
+                    if (res.new == 0) {
+                        fprintf(stderr, "line     = %s\n", b->data);
+                        fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.", instr->label);
+                    }
+                    else {
+                        res.data->i = instrCounter;
+                    }
                 }
             }
             else if (instr->op->opcode == -2) {
-                InsertionResult res = stable_insert(extern_table, instr->opds[0]->value.str);
-                if (res.new == 0) {
+                if (instr->label) {
                     fprintf(stderr, "line     = %s\n", b->data);
-                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->opds[0]->value.str);
+                    fprintf(stderr, "Invalid assignment: EXTERN instructions cannot have labels.");
+                }
+                else {
+                    InsertionResult res = stable_insert(extern_table, instr->opds[0]->value.str);
+                    if (res.new == 0) {
+                        fprintf(stderr, "line     = %s\n", b->data);
+                        fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.", instr->opds[0]->value.str);
+                    }
                 }
             }
         }
@@ -155,6 +190,10 @@ int assemble(const char *filename, FILE *input, FILE *output) {
         else print_error(errptr, b, cur);
         printf("\n");
         cur++;
+    }
+    if (!check_extern_consistency(extern_table, label_table)) {
+        fprintf(stderr, "line     = %s\n", b->data);
+        fprintf(stderr, "Invalid assignment: EXTERN instructions need to define a label.");
     }
     buffer_destroy(b);
     stable_destroy(alias_table);
