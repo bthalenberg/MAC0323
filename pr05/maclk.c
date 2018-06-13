@@ -6,6 +6,6 @@ Errors checked:
     > undefined label (checks if unresolved labels in each file were exported by any other file)
 */
 
-int main(int argc, char *argv) {
+int main(int argc, char **argv) {
     return 0;
 }

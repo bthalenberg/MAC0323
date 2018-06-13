@@ -122,18 +122,18 @@ int assemble(const char *filename, FILE *input, FILE *output) {
         if (parse(b->data, alias_table, &instr, &errptr)) {
             // caso IS: armazena na ST
             if (instr->op->opcode == -1) {
-                InsertionResult res = stable_insert(alias_table, instr->opds[0]->value.str);
+                InsertionResult res = stable_insert(alias_table, instr->label);
                 if (res.new == 0) {
                     fprintf(stderr, "line     = %s\n", b->data);
-                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->opds[0]->value.str);
+                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->label);
                 }
                 else {
                     res.data->opd = emalloc(sizeof(Operand));
-                    res.data->opd->type = instr->opds[1]->type;
-                    res.data->opd->value = instr->opds[1]->value;
+                    res.data->opd->type = REGISTER;
+                    res.data->opd->value.reg = instr->opds[0]->value.reg;
                 }
             }
-            if (instr->label) {
+            else if (instr->label) {
                 InsertionResult res = stable_insert(label_table, instr->label);
                 if (res.new == 0) {
                     fprintf(stderr, "line     = %s\n", b->data);
@@ -141,6 +141,13 @@ int assemble(const char *filename, FILE *input, FILE *output) {
                 }
                 else {
                     res.data->i = instrCounter;
+                }
+            }
+            else if (instr->op->opcode == -2) {
+                InsertionResult res = stable_insert(extern_table, instr->opds[0]->value.str);
+                if (res.new == 0) {
+                    fprintf(stderr, "line     = %s\n", b->data);
+                    fprintf(stderr, "Invalid assignment: \"%s\" is already assigned.\n", instr->opds[0]->value.str);
                 }
             }
         }
