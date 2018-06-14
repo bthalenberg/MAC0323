@@ -43,6 +43,8 @@ int main(int argc, char **argv) {
 		out = fopen(outfile, "w");
 		if(!assemble(infile, in, out)) 
 			die("error");
+		fclose(in);
+		fclose(out);
 	}	
 
 
