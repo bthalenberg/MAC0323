@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 
 	if(argc <= 2) return 1;
 
-	Buffer *b = buffer_create();
+	Buffer *b = buffer_create(50);
 	SymbolTable extern_table = stable_create(); //SymbolTable que conterá os rótulos extern 
 	int n = argc - 2; //numero de códigos-objetos
 	int *acc = malloc((n+1) * sizeof(int)); //guardará a soma acumulada das linhas até o arquivo i
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 		// Lê número de linhas
 		read_line(in[i], b);
 		// Calculamos soma acumulada
-		if(b->data[b->i-2] == '\n') b->data[b->i-2] = '\0';
+		if(b->data[b->p-2] == '\n') b->data[b->p-2] = '\0';
 		int tam = atoi(b->data);
 		acc[i] = acc[i-1] + tam;
 	}
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 	// verifica erros de extern
 	for (int i = 1; i <= n; i++) {
 		while (read_line(in[i], b) && b->data[0] != 'B') {
-			if (b->data[b->i-2] == '\n') b->data[b->i-2] = '\0';
+			if (b->data[b->p-2] == '\n') b->data[b->p-2] = '\0';
 			char *token = strtok(b->data," ");
 			char *label; 
 			int rel_pos;
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 	for (int i = 1; i <= n; i++) {
 		while (read_line(in[i], b)) {
 			line++;
-			if (b->data[b->i-2] == '\n') b->data[b->i-2] = '\0';
+			if (b->data[b->p-2] == '\n') b->data[b->p-2] = '\0';
 			if (b->data[0] == '*') {
 
 				char *token = strtok(b->data," *");

@@ -9,14 +9,14 @@
 
 int main(int argc, char *argv[])
 {
-	if(argc == 1 || argc > 3) {
+	if (argc == 1 || argc > 3) {
 		return 0;
 	}
 	FILE *infile = fopen(argv[1],"r");
-	if(infile == NULL)
+	if (infile == NULL)
 		return 0;
 	FILE *outfile;
-	if(argc == 2) {
+	if (argc == 2) {
 		char *s = estrdup(argv[1]);
 		char *aux;
 		int tam = strlen(s);

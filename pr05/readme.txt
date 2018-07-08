@@ -1,7 +1,12 @@
-como rodar:
+como compilar:
 
 $ make
-$ ./prog arquivo_de_teste
+
+exemplos de uso:
+
+$ macas hello.as
+
+$ maclk hello.mac hello.maco
 
 bruna thalenberg
 giovanna kobus
