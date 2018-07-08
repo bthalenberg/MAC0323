@@ -3,22 +3,33 @@ TARGET = prog
 CC = gcc
 CFLAGS = -Wall -std=c99 -pedantic -O2 -Wextra
 
-.PHONY: default all clean
+.PHONY: clean
 
-default: $(TARGET)
-all: default
+all: macas maclk
 
-OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
-HEADERS = $(wildcard *.h)
+macas: parser.o \
+		stable.o \
+		error.o \
+		asmtypes.o \
+		optable.o \
+		buffer.o \
+		asm.o \
+		macas.o
 
-%.o: %.c $(HEADERS)
+maclk: parser.o \
+		stable.o \
+		error.o \
+		asmtypes.o \
+		optable.o \
+		buffer.o \
+		asm.o \
+		maclk.o
+
+%.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-.PRECIOUS: $(TARGET) $(OBJECTS)
-
-$(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -Wall -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	-rm -f *.o
-	-rm -f $(TARGET)
+	rm -f *.o *~ macas maclk
